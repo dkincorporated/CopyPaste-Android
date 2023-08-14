@@ -86,13 +86,13 @@ fun HomeScreen(navHostController: NavHostController) {
             }
         ) {
             composable(HomeScreenItem.Dashboard.route) {
-                DashboardHomeScreen(navHostController = navHostController)
+                DashboardHomeScreen(navHostController = homeNavHostController, selectedPage = selectedPage)
             }
             composable(HomeScreenItem.Explore.route) {
-                ExploreHomeScreen(navHostController = navHostController)
+                ExploreHomeScreen(navHostController = homeNavHostController)
             }
             composable(HomeScreenItem.Settings.route) {
-                SettingsHomeScreen(navHostController = navHostController)
+                SettingsHomeScreen(navHostController = homeNavHostController)
             }
         }
     }
