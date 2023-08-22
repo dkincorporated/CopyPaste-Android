@@ -20,6 +20,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dev.dkong.copypaste.screens.RootScreen
 import dev.dkong.copypaste.screens.home.HomeScreen
+import dev.dkong.copypaste.screens.upload.UploadScreen
 import dev.dkong.copypaste.ui.theme.CopyPasteTheme
 import dev.dkong.copypaste.utils.Constants.Companion.transitionAnimationSpec
 import dev.dkong.copypaste.utils.Constants.Companion.transitionOffsetProportion
@@ -35,6 +36,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navHostController = rememberNavController()
+//                    checkConnection()
                     MainScreen(navHostController)
                 }
             }
@@ -75,6 +77,9 @@ fun MainScreen(navHostController: NavHostController) {
     ) {
         composable(RootScreen.Home.route) {
             HomeScreen(navHostController = navHostController)
+        }
+        composable(RootScreen.Upload.route) {
+            UploadScreen(navHostController = navHostController)
         }
     }
 }

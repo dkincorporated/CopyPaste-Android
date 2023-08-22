@@ -1,6 +1,8 @@
 package dev.dkong.copypaste.screens.home
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,16 +18,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import dev.dkong.copypaste.composables.SectionHeading
+import dev.dkong.copypaste.screens.RootScreen
+import dev.dkong.copypaste.utils.ConnectionManager
 
 @Composable
 fun DashboardHomeScreen(
     navHostController: NavHostController,
-    selectedPage: MutableState<HomeScreenItem>
+    selectedPage: MutableState<HomeScreenItem>,
+    homeNavHostController: NavHostController
 ) {
     LazyColumn(
         modifier = Modifier.padding(16.dp)
     ) {
         item {
+            // Card for no connection to server
             Card(
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -49,7 +56,7 @@ fun DashboardHomeScreen(
                     )
                     Button(
                         onClick = {
-                            navHostController.navigate(HomeScreenItem.Settings.route)
+                            homeNavHostController.navigate(HomeScreenItem.Settings.route)
                             selectedPage.value = HomeScreenItem.Settings
                         },
                         modifier = Modifier
@@ -58,6 +65,22 @@ fun DashboardHomeScreen(
                     ) {
                         Text(text = "Server settings")
                     }
+                }
+            }
+        }
+        item {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                SectionHeading(heading = "Actions", includeHorizontalPadding = false)
+                Button(
+                    onClick = {
+                        navHostController.navigate(RootScreen.Upload.route)
+                    },
+                ) {
+                    Text(text = "New")
                 }
             }
         }

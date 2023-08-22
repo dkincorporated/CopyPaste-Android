@@ -67,8 +67,12 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
+    implementation("androidx.activity:activity-ktx:1.7.2")
+
     implementation("androidx.compose.material3:material3:1.2.0-alpha05")
     implementation("androidx.navigation:navigation-compose:2.7.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
     implementation("com.beust:klaxon:5.5")
+    implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation("io.coil-kt:coil-video:2.4.0")
 }

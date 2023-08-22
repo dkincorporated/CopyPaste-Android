@@ -86,7 +86,7 @@ fun HomeScreen(navHostController: NavHostController) {
             }
         ) {
             composable(HomeScreenItem.Dashboard.route) {
-                DashboardHomeScreen(navHostController = homeNavHostController, selectedPage = selectedPage)
+                DashboardHomeScreen(navHostController = navHostController, selectedPage = selectedPage, homeNavHostController = homeNavHostController)
             }
             composable(HomeScreenItem.Explore.route) {
                 ExploreHomeScreen(navHostController = homeNavHostController)

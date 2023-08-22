@@ -11,4 +11,5 @@ sealed class RootScreen (route: String, name: String) : Screen(route, name) {
      * Main screen when entering the app
      */
     object Home : RootScreen("home", "Home")
+    object Upload : RootScreen("upload", "Upload")
 }
