@@ -1,6 +1,9 @@
 package dev.dkong.copypaste.screens.upload
 
+import android.content.Context
 import android.net.Uri
+import android.util.Log
+import android.webkit.MimeTypeMap
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -36,10 +39,17 @@ import androidx.navigation.NavHostController
 import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import coil.decode.VideoFrameDecoder
+import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.core.DataPart
+import com.github.kittinunf.fuel.core.FileDataPart
+import com.github.kittinunf.fuel.core.Method
 import dev.dkong.copypaste.composables.LargeTopAppbarScaffold
 import dev.dkong.copypaste.composables.SectionHeading
-import kotlinx.coroutines.launch
 import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 
 enum class UploadStatus {
     NotSelected,
@@ -49,10 +59,59 @@ enum class UploadStatus {
     Complete
 }
 
-fun upload(videoUri: Uri) {
-    val videoFile = videoUri.toFile()
-    
+fun upload(videoUri: Uri, context: Context) {
+    val videoFile = fileFromContentUri(context, videoUri)
+    Log.d("UPLOAD", videoFile.toString())
+    Fuel.upload("http://192.168.1.188:5000", method = Method.POST)
+        .add(FileDataPart(videoFile, name = "file"))
+        .response { result ->
+            Log.d("UPLOAD FILE", result.toString())
+        }
+
 }
+
+// From https://stackoverflow.com/a/64488260
+
+fun fileFromContentUri(context: Context, contentUri: Uri): File {
+    // Preparing Temp file name
+    val fileExtension = getFileExtension(context, contentUri)
+    val fileName = "temp_file" + if (fileExtension != null) ".$fileExtension" else ""
+
+    // Creating Temp file
+    val tempFile = File(context.cacheDir, fileName)
+    tempFile.createNewFile()
+
+    try {
+        val oStream = FileOutputStream(tempFile)
+        val inputStream = context.contentResolver.openInputStream(contentUri)
+
+        inputStream?.let {
+            copy(inputStream, oStream)
+        }
+
+        oStream.flush()
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+
+    return tempFile
+}
+
+private fun getFileExtension(context: Context, uri: Uri): String? {
+    val fileType: String? = context.contentResolver.getType(uri)
+    return MimeTypeMap.getSingleton().getExtensionFromMimeType(fileType)
+}
+
+@Throws(IOException::class)
+private fun copy(source: InputStream, target: OutputStream) {
+    val buf = ByteArray(8192)
+    var length: Int
+    while (source.read(buf).also { length = it } > 0) {
+        target.write(buf, 0, length)
+    }
+}
+
+// End from
 
 @Composable
 fun UploadScreen(navHostController: NavHostController) {
@@ -141,8 +200,12 @@ fun UploadScreen(navHostController: NavHostController) {
                         .fillMaxWidth()
                         .padding(vertical = 16.dp)
                 ) {
+                    val context = LocalContext.current
                     Button(
                         onClick = {
+                            videoUri?.let {
+                                upload(it, context)
+                            }
                             uploadStatus = UploadStatus.Uploading
                         },
                         enabled = uploadStatus == UploadStatus.NotSelected || uploadStatus == UploadStatus.Selected,

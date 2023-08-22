@@ -73,6 +73,7 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
     implementation("com.beust:klaxon:5.5")
+    implementation("com.github.kittinunf.fuel:fuel-android:2.3.1")
     implementation("io.coil-kt:coil-compose:2.4.0")
     implementation("io.coil-kt:coil-video:2.4.0")
 }

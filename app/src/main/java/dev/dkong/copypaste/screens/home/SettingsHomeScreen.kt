@@ -58,7 +58,7 @@ fun SettingsHomeScreen(navHostController: NavHostController) {
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.padding(horizontal = 16.dp)
             ) {
-                var serverAddress by remember { mutableStateOf("192.168.1.100") }
+                var serverAddress by remember { mutableStateOf("192.168.1.188") }
                 var isAddressValid by remember { mutableStateOf(true) }
                 OutlinedTextField(
                     value = serverAddress,
