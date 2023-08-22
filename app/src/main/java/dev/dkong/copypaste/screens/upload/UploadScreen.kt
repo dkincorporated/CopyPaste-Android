@@ -149,6 +149,7 @@ fun UploadScreen(navHostController: NavHostController) {
 
     fun upload(videoUri: Uri, context: Context): String? {
         isFailed = false
+
         val videoFile = fileFromContentUri(context, videoUri)
         Log.d("UPLOAD", videoFile.toString())
         Fuel.upload(rootUrl, method = Method.POST)
@@ -189,7 +190,7 @@ fun UploadScreen(navHostController: NavHostController) {
     ) {
         item {
             AnimatedVisibility(
-                visible = uploadStatus.step < UploadStatus.Uploading.step,
+                visible = uploadStatus.step < UploadStatus.Uploading.step || isFailed,
                 enter = expandVertically(),
                 exit = shrinkVertically()
             ) {
@@ -279,7 +280,13 @@ fun UploadScreen(navHostController: NavHostController) {
             }
         }
         item {
-            SectionHeading(heading = "Progress", includeHorizontalPadding = false)
+            AnimatedVisibility(
+                visible = uploadStatus.step >= UploadStatus.Uploading.step,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                SectionHeading(heading = "Progress", includeHorizontalPadding = false)
+            }
         }
         item {
             ProgressItem(
