@@ -25,6 +25,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
@@ -139,6 +141,7 @@ fun UploadScreen(navHostController: NavHostController) {
                         val (responseBytes, _) = result
                         if (responseBytes == null) {
                             isFailed = true
+                            uploadStatus = UploadStatus.Selected
                             Log.d("UPLOAD_RESPONSE", "Response Bytes is null.")
                             return@response
                         }
@@ -150,6 +153,7 @@ fun UploadScreen(navHostController: NavHostController) {
                             Log.d("PROCESSING RESULT", processingResult.toString())
                         } else if (jsonResponse.string("state") == "FAILURE") {
                             isFailed = true
+                            uploadStatus = UploadStatus.Selected
                         }
                     }
                 delay(3000)
@@ -167,9 +171,10 @@ fun UploadScreen(navHostController: NavHostController) {
             .response { _, _, result ->
                 val (responseBytes, _) = result
                 if (responseBytes == null) {
+                    isFailed = true
+                    uploadStatus = UploadStatus.Selected
                     Log.d("SERVICE_RESPONSE", "Response Bytes is null.")
                     return@response
-                    // TODO: Make a user-facing error message
                 }
                 val jsonResponse = Utils.convertToJsonObject(String(responseBytes))
                 if (jsonResponse.int("status") == 202) {
@@ -218,6 +223,9 @@ fun UploadScreen(navHostController: NavHostController) {
                     .build(),
             )
             Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .size(256.dp)
@@ -227,7 +235,7 @@ fun UploadScreen(navHostController: NavHostController) {
                         .align(Alignment.CenterHorizontally)
                         .size(256.dp)
                 ) {
-                    if (videoUri == null || isFailed) {
+                    if (videoUri == null) {
                         Column(
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                             modifier = Modifier.align(Alignment.Center)
@@ -243,13 +251,6 @@ fun UploadScreen(navHostController: NavHostController) {
                                 modifier = Modifier.align(Alignment.CenterHorizontally)
                             ) {
                                 Text(text = "Choose")
-                            }
-                            if (isFailed) {
-                                Text(
-                                    text = "Video could not be processed. Please try again.",
-                                    textAlign = TextAlign.Center,
-                                    color = MaterialTheme.colorScheme.error
-                                )
                             }
                         }
                     } else {
@@ -267,17 +268,43 @@ fun UploadScreen(navHostController: NavHostController) {
             }
         }
         item {
+            if (isFailed) {
+                Text(
+                    text = "Video could not be processed. Please try again.",
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+        item {
             AnimatedVisibility(
                 visible = uploadStatus == UploadStatus.Selected,
                 enter = expandVertically(),
                 exit = shrinkVertically()
             ) {
-                Column(
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(
+                        16.dp,
+                        Alignment.CenterHorizontally
+                    ),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 16.dp)
                 ) {
                     val context = LocalContext.current
+                    OutlinedButton(
+                        onClick = {
+                            launcher.launch(
+                                PickVisualMediaRequest(
+                                    mediaType = ActivityResultContracts.PickVisualMedia.VideoOnly
+                                )
+                            )
+                        },
+                        enabled = uploadStatus == UploadStatus.Selected
+                    ) {
+                        Text(text = "Choose another")
+                    }
                     Button(
                         onClick = {
                             videoUri?.let {
@@ -285,8 +312,7 @@ fun UploadScreen(navHostController: NavHostController) {
                             }
                             uploadStatus = UploadStatus.Uploading
                         },
-                        enabled = uploadStatus == UploadStatus.NotSelected || uploadStatus == UploadStatus.Selected,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                        enabled = uploadStatus == UploadStatus.NotSelected || uploadStatus == UploadStatus.Selected
                     ) {
                         Text(text = "Upload")
                     }
