@@ -138,9 +138,9 @@ fun UploadScreen(navHostController: NavHostController) {
                     .response { _, _, result ->
                         val (responseBytes, _) = result
                         if (responseBytes == null) {
-                            Log.d("SERVICE_RESPONSE", "Response Bytes is null.")
+                            isFailed = true
+                            Log.d("UPLOAD_RESPONSE", "Response Bytes is null.")
                             return@response
-                            // TODO: Make a user-facing error message
                         }
                         val jsonResponse = Utils.convertToJsonObject(String(responseBytes))
                         Log.d("PROCESSING CHECK", jsonResponse.string("state").toString())
@@ -191,6 +191,7 @@ fun UploadScreen(navHostController: NavHostController) {
         rememberLauncherForActivityResult(contract = ActivityResultContracts.PickVisualMedia()) { uri ->
             videoUri = uri
             uploadStatus = if (uri == null) UploadStatus.NotSelected else UploadStatus.Selected
+            isFailed = false
         }
 
     LargeTopAppbarScaffold(
@@ -294,28 +295,6 @@ fun UploadScreen(navHostController: NavHostController) {
         }
         item {
             AnimatedVisibility(
-                visible = uploadStatus.step >= UploadStatus.Selected.step,
-                enter = expandVertically(),
-                exit = shrinkVertically()
-            ) {
-                Column(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    SectionHeading(heading = "Customisation", includeHorizontalPadding = false)
-                    OutlinedTextField(
-                        value = actionName,
-                        onValueChange = { name ->
-                            actionName = name
-                        },
-                        label = { Text("Action name") },
-                        maxLines = 1,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-            }
-        }
-        item {
-            AnimatedVisibility(
                 visible = uploadStatus.step >= UploadStatus.Uploading.step,
                 enter = expandVertically(),
                 exit = shrinkVertically()
@@ -348,20 +327,48 @@ fun UploadScreen(navHostController: NavHostController) {
             }
         }
         item {
+            AnimatedVisibility(
+                visible = uploadStatus.step >= UploadStatus.Selected.step,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    SectionHeading(heading = "Customisation", includeHorizontalPadding = false)
+                    OutlinedTextField(
+                        value = actionName,
+                        onValueChange = { name ->
+                            actionName = name
+                        },
+                        label = { Text("Action name") },
+                        maxLines = 1,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+        }
+        item {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 16.dp)
             ) {
-                val context = LocalContext.current
                 Button(
                     onClick = {
 
                     },
-                    enabled = uploadStatus == UploadStatus.Complete,
+                    enabled = uploadStatus == UploadStatus.Complete && actionName != "",
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 ) {
                     Text(text = "Save")
+                }
+                if (uploadStatus == UploadStatus.Complete && actionName == "") {
+                    Text(
+                        text = "Please name the action before saving.",
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
             }
         }
