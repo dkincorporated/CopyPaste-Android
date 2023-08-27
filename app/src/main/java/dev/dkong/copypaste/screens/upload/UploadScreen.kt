@@ -9,22 +9,30 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toFile
 import androidx.navigation.NavHostController
@@ -120,6 +129,7 @@ fun UploadScreen(navHostController: NavHostController) {
     var statusUrl: String? by remember { mutableStateOf(null) }
     var processingResult: String? by remember { mutableStateOf(null) }
     var isFailed: Boolean by remember { mutableStateOf(false) }
+    var actionName: String by remember { mutableStateOf("") }
 
     fun process(statusUrl: String) {
         scope.launch {
@@ -194,34 +204,9 @@ fun UploadScreen(navHostController: NavHostController) {
                 enter = expandVertically(),
                 exit = shrinkVertically()
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    SectionHeading(heading = "Video selection", includeHorizontalPadding = false)
-                    FilledTonalButton(
-                        onClick = {
-                            launcher.launch(
-                                PickVisualMediaRequest(
-                                    mediaType = ActivityResultContracts.PickVisualMedia.VideoOnly
-                                )
-                            )
-                        }
-                    ) {
-                        Text(text = "Choose")
-                    }
-                }
+                SectionHeading(heading = "Video selection", includeHorizontalPadding = false)
             }
         }
-//        item {
-//            videoUri?.let {
-//                Text(
-//                    text = videoUri.toString()
-//                )
-//            }
-//        }
         item {
             val videoPainter = rememberAsyncImagePainter(
                 model = videoUri,
@@ -231,24 +216,52 @@ fun UploadScreen(navHostController: NavHostController) {
                     }
                     .build(),
             )
-            AnimatedVisibility(
-                visible = videoUri != null,
-                enter = expandVertically(),
-                exit = shrinkVertically()
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .size(256.dp)
             ) {
-                Card(
-                    modifier = Modifier.fillMaxWidth()
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .size(256.dp)
                 ) {
-                    Image(
-                        painter = videoPainter,
-                        contentDescription = "Selected video",
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier
-                            .size(256.dp)
-                            .padding(8.dp)
-                            .align(Alignment.CenterHorizontally)
-                    )
-
+                    if (videoUri == null || isFailed) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.align(Alignment.Center)
+                        ) {
+                            OutlinedButton(
+                                onClick = {
+                                    launcher.launch(
+                                        PickVisualMediaRequest(
+                                            mediaType = ActivityResultContracts.PickVisualMedia.VideoOnly
+                                        )
+                                    )
+                                },
+                                modifier = Modifier.align(Alignment.CenterHorizontally)
+                            ) {
+                                Text(text = "Choose")
+                            }
+                            if (isFailed) {
+                                Text(
+                                    text = "Video could not be processed. Please try again.",
+                                    textAlign = TextAlign.Center,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        }
+                    } else {
+                        Image(
+                            painter = videoPainter,
+                            contentDescription = "Selected video",
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier
+                                .size(256.dp)
+                                .padding(8.dp)
+                                .align(Alignment.Center)
+                        )
+                    }
                 }
             }
         }
@@ -281,45 +294,76 @@ fun UploadScreen(navHostController: NavHostController) {
         }
         item {
             AnimatedVisibility(
+                visible = uploadStatus.step >= UploadStatus.Selected.step,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    SectionHeading(heading = "Customisation", includeHorizontalPadding = false)
+                    OutlinedTextField(
+                        value = actionName,
+                        onValueChange = { name ->
+                            actionName = name
+                        },
+                        label = { Text("Action name") },
+                        maxLines = 1,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+        }
+        item {
+            AnimatedVisibility(
                 visible = uploadStatus.step >= UploadStatus.Uploading.step,
                 enter = expandVertically(),
                 exit = shrinkVertically()
             ) {
-                SectionHeading(heading = "Progress", includeHorizontalPadding = false)
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    SectionHeading(heading = "Progress", includeHorizontalPadding = false)
+                    ProgressItem(
+                        name = "Upload video",
+                        isVisible = uploadStatus.step >= UploadStatus.Uploading.step,
+                        isDone = uploadStatus.step > UploadStatus.Uploading.step
+                    )
+                    ProgressItem(
+                        name = "Processing",
+                        isVisible = uploadStatus.step >= UploadStatus.Processing.step,
+                        isDone = uploadStatus.step > UploadStatus.Processing.step,
+                        isFailed = isFailed
+                    )
+                    ProgressItem(
+                        name = "Complete",
+                        isVisible = uploadStatus.step == UploadStatus.Complete.step,
+                        isDone = uploadStatus.step == UploadStatus.Complete.step
+                    )
+                    processingResult?.let {
+                        Text(text = it)
+                    }
+                }
             }
         }
         item {
-            ProgressItem(
-                name = "Upload video",
-                isVisible = uploadStatus.step >= UploadStatus.Uploading.step,
-                isDone = uploadStatus.step > UploadStatus.Uploading.step
-            )
-        }
-        item {
-            ProgressItem(
-                name = "Processing",
-                isVisible = uploadStatus.step >= UploadStatus.Processing.step,
-                isDone = uploadStatus.step > UploadStatus.Processing.step,
-                isFailed = isFailed
-            )
-        }
-        item {
-            ProgressItem(
-                name = "Complete",
-                isVisible = uploadStatus.step == UploadStatus.Complete.step,
-                isDone = uploadStatus.step == UploadStatus.Complete.step
-            )
-        }
-        item {
-            processingResult?.let {
-                Text(text = it)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp)
+            ) {
+                val context = LocalContext.current
+                Button(
+                    onClick = {
+
+                    },
+                    enabled = uploadStatus == UploadStatus.Complete,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
+                    Text(text = "Save")
+                }
             }
-        }
-        item {
-            SectionHeading(heading = "Customisation", includeHorizontalPadding = false)
-        }
-        item {
-            Text(text = "Give your action a name!")
         }
     }
 }
@@ -341,13 +385,25 @@ fun ProgressItem(name: String, isVisible: Boolean, isDone: Boolean, isFailed: Bo
                 if (isFailed)
                     Text(text = "Failed", color = MaterialTheme.colorScheme.error)
             }
-            if (!isFailed) {
-                Box {
-                    if (isDone) {
-                        Checkbox(checked = true, onCheckedChange = {})
-                    } else {
-                        CircularProgressIndicator()
+            if (!isFailed && isVisible) {
+                Box(
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    this@Row.AnimatedVisibility(
+                        visible = isDone,
+                        enter = scaleIn(),
+                        exit = scaleOut()
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = Icons.Default.Check.name,
+                            modifier = Modifier.fillMaxSize(),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
                     }
+                    if (!isDone) CircularProgressIndicator(
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
             }
         }
