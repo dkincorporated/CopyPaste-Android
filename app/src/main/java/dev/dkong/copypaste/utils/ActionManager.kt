@@ -38,7 +38,20 @@ object ActionManager {
         }.collect { sequencesJson ->
             sequencesJson?.let {
                 sequences = Json.decodeFromString(it)
-                Log.d("Saved retrieval", sequences[0].toString())
+            }
+        }
+    }
+
+    /**
+     * Listen for changes to the list of sequences
+     */
+    suspend fun listen(context: Context, callback: (Array<Sequence>) -> Unit) {
+        context.dataStore.data.map { preferences ->
+            preferences[sequencesKey]
+        }.collect { sequencesJson ->
+            sequencesJson?.let {
+                sequences = Json.decodeFromString(it)
+                callback(sequences)
             }
         }
     }

@@ -79,23 +79,3 @@ data class Sequence(
         return result1
     }
 }
-
-//@Serializable
-//data class SavedSequences(
-//    val sequences: Array<Sequence>
-//) {
-//    override fun equals(other: Any?): Boolean {
-//        if (this === other) return true
-//        if (javaClass != other?.javaClass) return false
-//
-//        other as SavedSequences
-//
-//        if (!sequences.contentEquals(other.sequences)) return false
-//
-//        return true
-//    }
-//
-//    override fun hashCode(): Int {
-//        return sequences.contentHashCode()
-//    }
-//}
