@@ -146,13 +146,6 @@ fun UploadScreen(navHostController: NavHostController) {
             while (uploadStatus.step < UploadStatus.Complete.step && !isFailed && failedFetches < 10) {
                 Fuel.get(statusUrl)
                     .response { _, response, _ ->
-//                        val (responseBytes, _) = result
-//                        if (responseBytes == null) {
-//                            isFailed = true
-//                            uploadStatus = UploadStatus.Selected
-//                            Log.d("UPLOAD_RESPONSE", "Response Bytes is null.")
-//                            return@response
-//                        }
                         try {
                             val parsedResponse =
                                 Json.decodeFromString<Sequence>(response.data.toString(Charsets.UTF_8))
@@ -185,6 +178,7 @@ fun UploadScreen(navHostController: NavHostController) {
                 val (responseBytes, _) = result
                 if (responseBytes == null) {
                     isFailed = true
+                    failure = "Upload server provided no response."
                     uploadStatus = UploadStatus.Selected
                     Log.d("SERVICE_RESPONSE", "Response Bytes is null.")
                     return@response
@@ -393,27 +387,44 @@ fun UploadScreen(navHostController: NavHostController) {
                     .fillMaxWidth()
                     .padding(vertical = 16.dp)
             ) {
-                Button(
-                    onClick = {
-                        if (actionName == "") return@Button
-                        parsedSequence?.let { seq ->
-                            seq.name = actionName
-                            scope.launch {
-                                ActionManager.addSequence(context, seq)
-                                Log.d("SAVE", "Saved action $actionName!")
-                            }
-                        }
-                    },
-                    enabled = uploadStatus == UploadStatus.Complete && actionName != "",
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(
+                        16.dp,
+                        Alignment.CenterHorizontally
+                    ), modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(text = "Save")
+                    OutlinedButton(
+                        onClick = {
+                            isFailed = true
+                            failure = "Cancelled by user."
+                            uploadStatus = UploadStatus.Selected
+                        },
+                        enabled = uploadStatus == UploadStatus.Uploading || uploadStatus == UploadStatus.Processing
+                    ) {
+                        Text(text = "Cancel")
+                    }
+                    Button(
+                        onClick = {
+                            if (actionName == "") return@Button
+                            parsedSequence?.let { seq ->
+                                seq.name = actionName
+                                scope.launch {
+                                    ActionManager.addSequence(context, seq)
+                                    Log.d("SAVE", "Saved action $actionName!")
+                                }
+                            }
+                        },
+                        enabled = uploadStatus == UploadStatus.Complete && actionName != ""
+                    ) {
+                        Text(text = "Save")
+                    }
                 }
                 if (uploadStatus == UploadStatus.Complete && actionName == "") {
                     Text(
                         text = "Please name the action before saving.",
                         textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.error
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
             }
