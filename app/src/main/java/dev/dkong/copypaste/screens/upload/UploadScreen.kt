@@ -61,6 +61,8 @@ import com.github.kittinunf.fuel.core.FileDataPart
 import com.github.kittinunf.fuel.core.Method
 import dev.dkong.copypaste.composables.LargeTopAppbarScaffold
 import dev.dkong.copypaste.composables.SectionHeading
+import dev.dkong.copypaste.objects.Sequence
+import dev.dkong.copypaste.utils.ActionManager
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -69,6 +71,7 @@ import java.io.OutputStream
 import dev.dkong.copypaste.utils.Utils
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 
 enum class UploadStatus(val step: Int) {
     NotSelected(0),
@@ -124,6 +127,7 @@ private fun copy(source: InputStream, target: OutputStream) {
 @Composable
 fun UploadScreen(navHostController: NavHostController) {
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     val rootUrl = "http://192.168.1.188:5000"
     var videoUri: Uri? by remember { mutableStateOf(null) }
@@ -131,29 +135,38 @@ fun UploadScreen(navHostController: NavHostController) {
     var statusUrl: String? by remember { mutableStateOf(null) }
     var processingResult: String? by remember { mutableStateOf(null) }
     var isFailed: Boolean by remember { mutableStateOf(false) }
+    var failure: String? by remember { mutableStateOf(null) }
     var actionName: String by remember { mutableStateOf("") }
+    var parsedSequence: Sequence? = null
 
     fun process(statusUrl: String) {
         scope.launch {
-            while (uploadStatus.step < UploadStatus.Complete.step && !isFailed) {
+            Log.d("STATUS URL", statusUrl)
+            var failedFetches = 0
+            while (uploadStatus.step < UploadStatus.Complete.step && !isFailed && failedFetches < 10) {
                 Fuel.get(statusUrl)
-                    .response { _, _, result ->
-                        val (responseBytes, _) = result
-                        if (responseBytes == null) {
-                            isFailed = true
-                            uploadStatus = UploadStatus.Selected
-                            Log.d("UPLOAD_RESPONSE", "Response Bytes is null.")
-                            return@response
-                        }
-                        val jsonResponse = Utils.convertToJsonObject(String(responseBytes))
-                        Log.d("PROCESSING CHECK", jsonResponse.string("state").toString())
-                        if (jsonResponse.string("state") == "SUCCESS") {
-                            uploadStatus = UploadStatus.Complete
-                            processingResult = jsonResponse.array<JsonObject>("result").toString()
-                            Log.d("PROCESSING RESULT", processingResult.toString())
-                        } else if (jsonResponse.string("state") == "FAILURE") {
-                            isFailed = true
-                            uploadStatus = UploadStatus.Selected
+                    .response { _, response, _ ->
+//                        val (responseBytes, _) = result
+//                        if (responseBytes == null) {
+//                            isFailed = true
+//                            uploadStatus = UploadStatus.Selected
+//                            Log.d("UPLOAD_RESPONSE", "Response Bytes is null.")
+//                            return@response
+//                        }
+                        try {
+                            val parsedResponse =
+                                Json.decodeFromString<Sequence>(response.data.toString(Charsets.UTF_8))
+                            Log.d("PROCESSING", parsedResponse.toString())
+                            if (parsedResponse.state?.equals("SUCCESS") == true) {
+                                uploadStatus = UploadStatus.Complete
+                                parsedSequence = parsedResponse
+                            } else if (parsedResponse.state?.equals("FAILURE") == true) {
+                                isFailed = true
+                                failure = parsedResponse.status
+                                uploadStatus = UploadStatus.Selected
+                            }
+                        } catch (_: IOException) {
+                            failedFetches += 1
                         }
                     }
                 delay(3000)
@@ -270,7 +283,7 @@ fun UploadScreen(navHostController: NavHostController) {
         item {
             if (isFailed) {
                 Text(
-                    text = "Video could not be processed. Please try again.",
+                    text = "Video could not be processed. $failure",
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.fillMaxWidth()
@@ -303,7 +316,7 @@ fun UploadScreen(navHostController: NavHostController) {
                         },
                         enabled = uploadStatus == UploadStatus.Selected
                     ) {
-                        Text(text = "Choose another")
+                        Text(text = "Choose again")
                     }
                     Button(
                         onClick = {
@@ -382,7 +395,14 @@ fun UploadScreen(navHostController: NavHostController) {
             ) {
                 Button(
                     onClick = {
-
+                        if (actionName == "") return@Button
+                        parsedSequence?.let { seq ->
+                            seq.name = actionName
+                            scope.launch {
+                                ActionManager.addSequence(context, seq)
+                                Log.d("SAVE", "Saved action $actionName!")
+                            }
+                        }
                     },
                     enabled = uploadStatus == UploadStatus.Complete && actionName != "",
                     modifier = Modifier.align(Alignment.CenterHorizontally)

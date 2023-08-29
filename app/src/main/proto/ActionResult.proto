@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+option java_package = "dev.dkong.copypaste";
+option java_multiple_files = true;
+
+/*
+A single tap
+ */
+message ActionTap {
+  int32 x = 1;
+  int32 y = 2;
+}
+
+/*
+A single action
+ */
+message Action {
+  string act_type = 1;
+  int32 first_frame = 2;
+  string resulting_screen_ocr = 3;
+  repeated ActionTap taps = 4;
+}
+
+/*
+The result from a processed video
+ */
+message ActionResult {
+  repeated Action result = 1;
+  string state = 2;
+}

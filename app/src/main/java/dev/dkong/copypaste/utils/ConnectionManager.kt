@@ -13,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.flow.map
+import java.io.IOException
 
 object ConnectionManager {
     val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
@@ -58,12 +59,21 @@ object ConnectionManager {
         Fuel.get("http://$ipAddress:$port")
             .response { _, response, _ ->
                 isConnected = response.statusCode == 200
-                callback(
-                    ipAddress,
-                    port,
-                    response.statusCode,
-                    response.data.toString(Charsets.UTF_8).contains("Upload new File")
-                )
+                try {
+                    callback(
+                        ipAddress,
+                        port,
+                        response.statusCode,
+                        response.data.toString(Charsets.UTF_8).contains("Upload new File")
+                    )
+                } catch (_: IOException) {
+                    callback(
+                        ipAddress,
+                        port,
+                        response.statusCode,
+                        false
+                    )
+                }
             }
     }
 }

@@ -1,6 +1,7 @@
 package dev.dkong.copypaste
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.fadeIn
@@ -29,6 +30,9 @@ import dev.dkong.copypaste.utils.ConnectionManager
 import dev.dkong.copypaste.utils.Constants.Companion.transitionAnimationSpec
 import dev.dkong.copypaste.utils.Constants.Companion.transitionOffsetProportion
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
+import dev.dkong.copypaste.objects.Sequence
+import dev.dkong.copypaste.utils.ActionManager
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,8 +45,12 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val context = LocalContext.current
+
                     LaunchedEffect(Unit) {
                         ConnectionManager.initialise(context)
+                    }
+                    LaunchedEffect(Unit) {
+                        ActionManager.initialise(context)
                     }
 
                     val navHostController = rememberNavController()
