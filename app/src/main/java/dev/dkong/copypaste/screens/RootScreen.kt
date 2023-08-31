@@ -12,4 +12,5 @@ sealed class RootScreen (route: String, name: String) : Screen(route, name) {
      */
     object Home : RootScreen("home", "Home")
     object Upload : RootScreen("upload", "Upload")
+    object SequenceInfo : RootScreen("seq_info?id={id}", "Sequence info")
 }

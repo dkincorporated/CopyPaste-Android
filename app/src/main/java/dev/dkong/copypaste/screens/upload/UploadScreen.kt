@@ -408,9 +408,12 @@ fun UploadScreen(navHostController: NavHostController) {
                             if (actionName == "") return@Button
                             parsedSequence?.let { seq ->
                                 seq.name = actionName
+                                seq.creationTime = System.currentTimeMillis() / 1000
+                                seq.id = System.currentTimeMillis() / 1000
                                 scope.launch {
                                     ActionManager.addSequence(context, seq)
                                     Log.d("SAVE", "Saved action $actionName!")
+                                    navHostController.navigateUp()
                                 }
                             }
                         },

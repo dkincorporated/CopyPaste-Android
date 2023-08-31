@@ -19,9 +19,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import dev.dkong.copypaste.screens.RootScreen
 import dev.dkong.copypaste.screens.home.HomeScreen
 import dev.dkong.copypaste.screens.upload.UploadScreen
@@ -32,6 +34,7 @@ import dev.dkong.copypaste.utils.Constants.Companion.transitionOffsetProportion
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import dev.dkong.copypaste.objects.Sequence
+import dev.dkong.copypaste.screens.sequence.SequenceInfoScreen
 import dev.dkong.copypaste.utils.ActionManager
 
 class MainActivity : ComponentActivity() {
@@ -97,6 +100,16 @@ fun MainScreen(navHostController: NavHostController) {
         }
         composable(RootScreen.Upload.route) {
             UploadScreen(navHostController = navHostController)
+        }
+        composable(
+            RootScreen.SequenceInfo.route,
+            arguments = listOf(
+                navArgument("id") {
+                    type = NavType.LongType
+                }
+            )
+        ) { bse ->
+            SequenceInfoScreen(navHostController = navHostController, id = bse.arguments?.getLong("id"))
         }
     }
 }

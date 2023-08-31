@@ -51,7 +51,9 @@ data class Sequence(
     val result: Array<Action>? = null,
     val state: String? = null,
     val status: String? = null,
-    var name: String? = null
+    var name: String? = null,
+    var id: Long? = null,
+    var creationTime: Long? = null
 ) {
     override fun toString(): String {
         return "Name: $name | Actions: ${

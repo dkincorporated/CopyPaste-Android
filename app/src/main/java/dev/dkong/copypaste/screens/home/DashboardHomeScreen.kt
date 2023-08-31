@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package dev.dkong.copypaste.screens.home
 
 import android.util.Log
@@ -14,9 +16,11 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -152,8 +156,49 @@ fun DashboardHomeScreen(
                 }
             }
         }
-        itemsIndexed(sequences) { index, item ->
-            Text(text = "${item.name} | Actions: ${item.result?.size ?: 0}")
+        itemsIndexed(sequences) { _, item ->
+            SequenceCard(sequence = item, navHostController = navHostController)
+        }
+    }
+}
+
+@Composable
+fun SequenceCard(sequence: Sequence, navHostController: NavHostController) {
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        onClick = {
+            navHostController.navigate("seq_info?id=${sequence.id}")
+            // TODO: Launch the sequence detail page
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+        ) {
+            Column {
+                sequence.name?.let { name ->
+                    Text(
+                        text = name,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+                Text(text = "${sequence.result?.size ?: "No"} actions | ${sequence.id}")
+            }
+            OutlinedButton(
+                onClick = {
+                    // TODO: Execute the action
+                }
+            ) {
+                Text("Execute")
+            }
         }
     }
 }

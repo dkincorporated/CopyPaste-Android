@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dev.dkong.copypaste.objects.Sequence
@@ -26,8 +27,18 @@ object ActionManager {
      */
     var sequences: Array<Sequence> = emptyArray()
 
+    /**
+     * Next surrogate ID
+     */
+    var nextId: Int = 0
+
     // DataStore keys
     private val sequencesKey = stringPreferencesKey("sequences")
+
+    /**
+     * Key to retrieve current surrogate ID value
+     */
+    private val idKey = intPreferencesKey("id")
 
     /**
      * Initialise the ActionManager
@@ -62,6 +73,17 @@ object ActionManager {
     suspend fun addSequence(context: Context, newSequence: Sequence) {
         context.dataStore.edit { preferences ->
             preferences[sequencesKey] = Json.encodeToString(sequences + newSequence)
+        }
+    }
+
+    suspend fun getSequence(context: Context, id: Long, callback: (Sequence?) -> Unit) {
+        context.dataStore.data.map { preferences ->
+            preferences[sequencesKey]
+        }.collect { sequences ->
+            sequences?.let {
+                val sequence = Json.decodeFromString<Array<Sequence>>(it)
+                callback(sequence.find { s -> s.id == id })
+            }
         }
     }
 

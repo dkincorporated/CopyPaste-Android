@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -69,6 +70,7 @@ import dev.dkong.copypaste.utils.Constants
 fun LargeTopAppbarScaffold(
     navController: NavHostController,
     title: String,
+    topAppBarActions: @Composable RowScope.() -> Unit = {},
     horizontalPadding: Dp = 0.dp,
     navigationIcon: ImageVector = Icons.Default.ArrowBack,
     onNavigationIconClick: () -> Unit = { navController.navigateUp() },
@@ -95,7 +97,8 @@ fun LargeTopAppbarScaffold(
                         onClick = onNavigationIconClick,
                         icon = navigationIcon
                     )
-                }
+                },
+                actions = topAppBarActions
             )
         },
         bottomBar = navigationBar
