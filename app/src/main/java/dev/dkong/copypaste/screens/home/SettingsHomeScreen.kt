@@ -102,9 +102,6 @@ fun SettingsHomeScreen(navHostController: NavHostController) {
                         Text(text = "192.168.1.100")
                     },
                     isError = !isAddressValid,
-                    supportingText = {
-                        Text(text = "Please use a valid IPv4 address (no FQDN).")
-                    },
                     modifier = Modifier.fillMaxWidth()
                 )
 

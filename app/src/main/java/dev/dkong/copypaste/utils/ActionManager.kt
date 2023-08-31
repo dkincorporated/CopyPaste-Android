@@ -91,9 +91,10 @@ object ActionManager {
      * Remove a sequence from the list of sequences
      */
     suspend fun removeSequence(context: Context, sequenceToRemove: Sequence) {
-        context.dataStore.edit { preferneces ->
+        context.dataStore.edit { preferences ->
             val modifiedSequences = sequences.filter { sequence -> sequence != sequenceToRemove }
-            preferneces[sequencesKey] = Json.encodeToString(modifiedSequences)
+            Log.d("DELETING SEQ", modifiedSequences.size.toString())
+            preferences[sequencesKey] = Json.encodeToString(modifiedSequences)
         }
     }
 }

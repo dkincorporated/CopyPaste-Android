@@ -299,7 +299,6 @@ fun UploadScreen(navHostController: NavHostController) {
                         .fillMaxWidth()
                         .padding(vertical = 16.dp)
                 ) {
-                    val context = LocalContext.current
                     OutlinedButton(
                         onClick = {
                             launcher.launch(
@@ -369,6 +368,7 @@ fun UploadScreen(navHostController: NavHostController) {
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     SectionHeading(heading = "Customisation", includeHorizontalPadding = false)
+                    val isError = uploadStatus == UploadStatus.Complete && actionName == ""
                     OutlinedTextField(
                         value = actionName,
                         onValueChange = { name ->
@@ -376,7 +376,17 @@ fun UploadScreen(navHostController: NavHostController) {
                         },
                         label = { Text("Action name") },
                         maxLines = 1,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = isError,
+                        supportingText = {
+                            AnimatedVisibility(
+                                visible = isError,
+                                enter = expandVertically(),
+                                exit = shrinkVertically()
+                            ) {
+                                Text("Please name the action before saving.")
+                            }
+                        }
                     )
                 }
             }
@@ -422,14 +432,14 @@ fun UploadScreen(navHostController: NavHostController) {
                         Text(text = "Save")
                     }
                 }
-                if (uploadStatus == UploadStatus.Complete && actionName == "") {
-                    Text(
-                        text = "Please name the action before saving.",
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
+//                if (uploadStatus == UploadStatus.Complete && actionName == "") {
+//                    Text(
+//                        text = "Please name the action before saving.",
+//                        textAlign = TextAlign.Center,
+//                        color = MaterialTheme.colorScheme.error,
+//                        modifier = Modifier.fillMaxWidth()
+//                    )
+//                }
             }
         }
     }

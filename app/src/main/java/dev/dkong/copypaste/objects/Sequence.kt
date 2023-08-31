@@ -64,15 +64,9 @@ data class Sequence(
     }
 
     override fun equals(other: Any?): Boolean {
-        if (this === other) return true
         if (javaClass != other?.javaClass) return false
-
         other as Sequence
-
-        if (!result.contentEquals(other.result)) return false
-        if (state != other.state) return false
-
-        return true
+        return this.id == other.id
     }
 
     override fun hashCode(): Int {

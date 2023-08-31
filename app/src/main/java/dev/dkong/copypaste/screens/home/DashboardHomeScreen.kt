@@ -51,6 +51,7 @@ fun DashboardHomeScreen(
     homeNavHostController: NavHostController
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     var isConnected by remember { mutableStateOf(false) }
     var sequences = remember { mutableStateListOf<Sequence>() }
