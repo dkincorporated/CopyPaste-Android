@@ -39,6 +39,8 @@ import dev.dkong.copypaste.composables.SectionHeading
 import dev.dkong.copypaste.objects.Sequence
 import dev.dkong.copypaste.utils.ActionManager
 import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun SequenceInfoScreen(
@@ -107,8 +109,12 @@ fun SequenceInfoScreen(
             item {
                 SectionHeading(heading = "Info", includeHorizontalPadding = false)
             }
-            item {
-                Text(text = "Created: ${s.creationTime}")
+            s.creationTime?.let { time ->
+                item {
+                    val displayTime =
+                        DateTimeFormatter.ISO_INSTANT.format(Instant.ofEpochSecond(time))
+                    Text(text = "Created: $displayTime")
+                }
             }
             item {
                 SectionHeading(heading = "Actions", includeHorizontalPadding = false)

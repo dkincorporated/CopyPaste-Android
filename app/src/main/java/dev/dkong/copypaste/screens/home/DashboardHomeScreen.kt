@@ -40,7 +40,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.TextUnit
 import dev.dkong.copypaste.objects.Sequence
+import dev.dkong.copypaste.objects.Action
+import dev.dkong.copypaste.objects.Position
 import dev.dkong.copypaste.utils.ActionManager
 import kotlinx.coroutines.launch
 
@@ -160,6 +163,38 @@ fun DashboardHomeScreen(
         itemsIndexed(sequences) { _, item ->
             SequenceCard(sequence = item, navHostController = navHostController)
         }
+        item {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                OutlinedButton(onClick = {
+                    scope.launch {
+                        ActionManager.addSequence(
+                            context,
+                            Sequence(
+                                id = System.currentTimeMillis() / 1000,
+                                creationTime = System.currentTimeMillis() / 1000,
+                                name = "Test sequence",
+                                status = "SUCCESS",
+                                result = arrayOf(
+                                    Action(
+                                        actType = "SWIPE",
+                                        firstFrame = 13,
+                                        resultingScreenOcr = "NeverGonnaGiveYouUpNeverGonnaLetYouDown",
+                                        taps = arrayOf(
+                                            Position(1f, 3f),
+                                            Position(2f, 4f),
+                                            Position(3f, 5f),
+                                            Position(4f, 6f)
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    }
+                }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                    Text("Add test data")
+                }
+            }
+        }
     }
 }
 
@@ -187,11 +222,14 @@ fun SequenceCard(sequence: Sequence, navHostController: NavHostController) {
                 sequence.name?.let { name ->
                     Text(
                         text = name,
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
-                Text(text = "${sequence.result?.size ?: "No"} actions | ${sequence.id}")
+                Text(
+                    text = "${sequence.result?.size ?: "No"} actions | ${sequence.id}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
             OutlinedButton(
                 onClick = {
