@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Copy Paste</string>
+    <string name="accessibility_label">Copy Paste replay</string>
+    <string name="accessibility_description">Copy Paste uses Android\'s accessibility access to replay recorded actions on the device.</string>
 </resources>
