@@ -60,8 +60,8 @@ object ActionManager {
         context.dataStore.data.map { preferences ->
             preferences[sequencesKey]
         }.collect { sequencesJson ->
-            sequencesJson?.let {
-                sequences = Json.decodeFromString(it)
+            sequencesJson?.let { s ->
+                sequences = Json.decodeFromString(s)
                 callback(sequences)
             }
         }
@@ -80,9 +80,9 @@ object ActionManager {
         context.dataStore.data.map { preferences ->
             preferences[sequencesKey]
         }.collect { sequences ->
-            sequences?.let {
-                val sequence = Json.decodeFromString<Array<Sequence>>(it)
-                callback(sequence.find { s -> s.id == id })
+            sequences?.let { s ->
+                val sequence = Json.decodeFromString<Array<Sequence>>(s)
+                callback(sequence.find { seq -> seq.id == id })
             }
         }
     }

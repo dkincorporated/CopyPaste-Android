@@ -12,13 +12,19 @@ data class Position(
 @Serializable
 data class Action(
     @SerialName("act_type")
-    val actType: String,
+    val actType: ActionType?,
     @SerialName("first_frame")
     val firstFrame: Int,
     @SerialName("resulting_screen_ocr")
     val resultingScreenOcr: String,
     val taps: Array<Position>
 ) {
+    @Serializable
+    enum class ActionType {
+        @SerialName("SWIPE")
+        Swipe
+    }
+
     override fun toString(): String {
         return "Type: $actType, First frame: $firstFrame, OCR: $resultingScreenOcr"
     }

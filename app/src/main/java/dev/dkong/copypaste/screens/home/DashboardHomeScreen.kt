@@ -13,10 +13,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -176,7 +179,7 @@ fun DashboardHomeScreen(
                                 status = "SUCCESS",
                                 result = arrayOf(
                                     Action(
-                                        actType = "SWIPE",
+                                        actType = Action.ActionType.Swipe,
                                         firstFrame = 13,
                                         resultingScreenOcr = "NeverGonnaGiveYouUpNeverGonnaLetYouDown",
                                         taps = arrayOf(
@@ -231,12 +234,8 @@ fun SequenceCard(sequence: Sequence, navHostController: NavHostController) {
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
-            OutlinedButton(
-                onClick = {
-                    // TODO: Execute the action
-                }
-            ) {
-                Text("Execute")
+            FilledTonalIconButton(onClick = { /*TODO*/ }) {
+                Icon(Icons.Default.PlayArrow, Icons.Default.PlayArrow.name)
             }
         }
     }

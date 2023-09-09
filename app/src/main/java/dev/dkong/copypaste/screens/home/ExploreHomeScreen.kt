@@ -83,8 +83,8 @@ fun ExploreHomeScreen(navHostController: NavHostController) {
                     SegmentedButton(
                         selected = viewMode == index,
                         onClick = { viewMode = index },
-                        shape = SegmentedButtonDefaults.shape(
-                            position = index,
+                        shape = SegmentedButtonDefaults.itemShape(
+                            index = index,
                             count = viewModes.size
                         ),
                         icon = {}

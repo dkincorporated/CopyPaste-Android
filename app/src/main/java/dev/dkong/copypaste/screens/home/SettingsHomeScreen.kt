@@ -1,5 +1,13 @@
 package dev.dkong.copypaste.screens.home
 
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.provider.Settings
+import android.util.Log
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import com.github.kittinunf.fuel.Fuel
 import dev.dkong.copypaste.composables.SectionHeading
@@ -37,8 +46,27 @@ fun SettingsHomeScreen(navHostController: NavHostController) {
     var connected by remember { mutableStateOf(false) }
     ConnectionManager.checkConnection { connected = it }
 
+    /*
+    This permission-related stuff isn't actually needed :(
+    @Composable
+    fun permCallback(callback: (Boolean) -> Unit): ManagedActivityResultLauncher<String, Boolean> =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean -> callback(isGranted) }
+
+    fun checkPermission(permission: String): Boolean {
+        return ContextCompat.checkSelfPermission(
+            context,
+            permission
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+     */
+
     var serverAddress by remember { mutableStateOf(ConnectionManager.serverAddress) }
     var serverPort by remember { mutableStateOf(ConnectionManager.serverPort) }
+    var isAccessibilityGranted by remember { mutableStateOf(true) }
+    var isOverlayGranted by remember { mutableStateOf(Settings.canDrawOverlays(context)) }
+
 
     LazyColumn {
         item {
@@ -128,8 +156,6 @@ fun SettingsHomeScreen(navHostController: NavHostController) {
             SectionHeading(heading = "Services")
         }
         item {
-            var isAccessibilityGranted by remember { mutableStateOf(true) }
-
             fun handleAccessibility() {
                 isAccessibilityGranted = !isAccessibilityGranted
                 // TODO
@@ -144,6 +170,31 @@ fun SettingsHomeScreen(navHostController: NavHostController) {
                 horizontalPadding = 16.dp,
                 actionContent = {
                     Switch(checked = isAccessibilityGranted, onCheckedChange = {
+                        handleAccessibility()
+                    })
+                }
+            )
+        }
+        item {
+            val overlayPermResult =
+                rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) {
+                    isOverlayGranted = Settings.canDrawOverlays(context)
+                }
+
+            fun handleAccessibility() {
+                // Request for permission
+                overlayPermResult.launch(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION))
+            }
+
+            SettingsItem(
+                name = "Overlay service",
+                onClick = {
+                    handleAccessibility()
+                },
+                description = "Copy Paste overlays controls when playing actions.",
+                horizontalPadding = 16.dp,
+                actionContent = {
+                    Switch(checked = isOverlayGranted, onCheckedChange = {
                         handleAccessibility()
                     })
                 }

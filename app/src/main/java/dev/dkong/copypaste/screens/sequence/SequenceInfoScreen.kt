@@ -121,7 +121,7 @@ fun SequenceInfoScreen(
             }
             s.result?.let { actions ->
                 itemsIndexed(actions) { _, action ->
-                    Text(text = "Type: ${action.actType.lowercase()}")
+                    Text(text = "Type: ${action.actType.toString()}")
                     Text(text = "First frame: ${action.firstFrame}")
                     Text(text = "Positions:")
                     FlowRow(
