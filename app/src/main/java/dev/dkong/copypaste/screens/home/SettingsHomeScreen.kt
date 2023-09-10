@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import com.github.kittinunf.fuel.Fuel
+import dev.dkong.copypaste.accessibility.ReplayAccessibilityService
 import dev.dkong.copypaste.composables.SectionHeading
 import dev.dkong.copypaste.composables.SettingsItem
 import dev.dkong.copypaste.utils.ConnectionManager
@@ -156,9 +157,25 @@ fun SettingsHomeScreen(navHostController: NavHostController) {
             SectionHeading(heading = "Services")
         }
         item {
+            val checkAccessibility = if (Settings.Secure.getInt(
+                    context.contentResolver,
+                    Settings.Secure.ACCESSIBILITY_ENABLED
+                ) == 0
+            ) false else Settings.Secure.getString(
+                context.contentResolver,
+                Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+            ).contains("${context.packageName}/${ReplayAccessibilityService::class.qualifiedName}")
+
+            isAccessibilityGranted = checkAccessibility
+
+            val accessibilityResult =
+                rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) {
+                    // TODO: This doesn't seem to work right now
+                    isAccessibilityGranted = checkAccessibility
+                }
+
             fun handleAccessibility() {
-                isAccessibilityGranted = !isAccessibilityGranted
-                // TODO
+                accessibilityResult.launch(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
             }
 
             SettingsItem(
