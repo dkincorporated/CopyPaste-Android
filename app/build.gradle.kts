@@ -71,6 +71,7 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
     implementation("androidx.activity:activity-ktx:1.7.2")
+    implementation("androidx.appcompat:appcompat:1.6.1")
 
     implementation("androidx.compose.material3:material3:1.2.0-alpha07")
     implementation("androidx.navigation:navigation-compose:2.7.2")

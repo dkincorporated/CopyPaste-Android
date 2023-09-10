@@ -39,6 +39,8 @@
                 <action android:name="android.accessibilityservice.AccessibilityService" />
             </intent-filter>
         </service>
+        <service android:name=".overlay.ReplayOverlayService"
+            android:exported="false" />
     </application>
 
 </manifest>
