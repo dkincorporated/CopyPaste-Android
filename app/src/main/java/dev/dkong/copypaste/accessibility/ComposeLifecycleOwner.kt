@@ -10,10 +10,8 @@ import androidx.savedstate.SavedStateRegistryOwner
 class ComposeLifecycleOwner : SavedStateRegistryOwner {
     private var lifecycleRegistry = LifecycleRegistry(this)
     private var savedStateRegistryController = SavedStateRegistryController.create(this)
-    override val lifecycle: Lifecycle
-        get() = lifecycleRegistry
-    override val savedStateRegistry: SavedStateRegistry
-        get() = savedStateRegistryController.savedStateRegistry
+    override val lifecycle: Lifecycle = lifecycleRegistry
+    override val savedStateRegistry: SavedStateRegistry = savedStateRegistryController.savedStateRegistry
 
     val isInitialized: Boolean
         get() = true
