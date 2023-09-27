@@ -55,12 +55,11 @@ import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import dev.dkong.copypaste.objects.Position
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 class ReplayAccessibilityService : AccessibilityService() {
-    data class Position(val x: Float, val y: Float)
-
     private fun actionView(): ComposeView {
         val view = ComposeView(this)
         view.setContent {
@@ -252,7 +251,7 @@ class ReplayAccessibilityService : AccessibilityService() {
     /**
      * Swipe down on the screen
      */
-    private fun swipe(
+    fun swipe(
         from: Position,
         to: Position,
         callback: GestureResultCallback? = null,
@@ -269,7 +268,7 @@ class ReplayAccessibilityService : AccessibilityService() {
     /**
      * Tap on the screen
      */
-    private fun tap(
+    fun tap(
         point: Position,
         callback: GestureResultCallback? = null
     ) {
@@ -284,7 +283,7 @@ class ReplayAccessibilityService : AccessibilityService() {
     /**
      * Long press on the screen
      */
-    private fun longTap(
+    fun longTap(
         point: Position,
         callback: GestureResultCallback? = null
     ) {

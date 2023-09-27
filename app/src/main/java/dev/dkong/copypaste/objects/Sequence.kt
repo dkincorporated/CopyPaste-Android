@@ -1,7 +1,44 @@
 package dev.dkong.copypaste.objects
 
+import android.accessibilityservice.AccessibilityService.GestureResultCallback
+import dev.dkong.copypaste.accessibility.ReplayAccessibilityService
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+
+sealed class ExecutableAction(action: Action) {
+    abstract fun execute(
+        service: ReplayAccessibilityService,
+        action: Action,
+        callback: GestureResultCallback? = null
+    )
+
+    class SwipeAction(action: Action) : ExecutableAction(action) {
+        override fun execute(
+            service: ReplayAccessibilityService,
+            action: Action,
+            callback: GestureResultCallback?
+        ) {
+            service.swipe(
+                action.taps.first(),
+                action.taps.last(),
+                callback
+            )
+        }
+    }
+
+    class TapAction(action: Action) : ExecutableAction(action) {
+        override fun execute(
+            service: ReplayAccessibilityService,
+            action: Action,
+            callback: GestureResultCallback?
+        ) {
+            service.tap(
+                action.taps.first(),
+                callback
+            )
+        }
+    }
+}
 
 @Serializable
 data class Position(
