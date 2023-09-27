@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.PlayArrow
@@ -130,6 +131,30 @@ class ReplayAccessibilityService : AccessibilityService() {
                             "Action"
                         )
                     }
+                    FloatingActionButton(
+                        onClick = {
+                            if (actionInProgress) return@FloatingActionButton
+                            actionInProgress = true
+                            longTap(
+                                point = Position(540f, 1000f),
+                                callback = object : GestureResultCallback() {
+                                    override fun onCompleted(gestureDescription: GestureDescription?) {
+                                        actionInProgress = false
+                                    }
+
+                                    override fun onCancelled(gestureDescription: GestureDescription?) {
+                                        onCompleted(gestureDescription)
+                                    }
+                                }
+                            )
+                        },
+                        elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
+                    ) {
+                        Icon(
+                            if (actionInProgress) Icons.Default.Warning else Icons.Default.Add,
+                            "Action"
+                        )
+                    }
 //                    OutlinedButton(onClick = {}, enabled = !actionInProgress) {
 //                        Text("Stop", color = MaterialTheme.colorScheme.error)
 //                    }
@@ -161,7 +186,7 @@ class ReplayAccessibilityService : AccessibilityService() {
                     if (showPrompt) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
-                                text = "Say 'hello, world!' for me",
+                                text = "Open the app",
                                 style = MaterialTheme.typography.headlineSmall,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
@@ -225,7 +250,7 @@ class ReplayAccessibilityService : AccessibilityService() {
     }
 
     /**
-     * (Test) Swipe down on the screen
+     * Swipe down on the screen
      */
     private fun swipe(
         from: Position,
@@ -241,8 +266,37 @@ class ReplayAccessibilityService : AccessibilityService() {
         dispatchGesture(gesture.build(), callback, null)
     }
 
+    /**
+     * Tap on the screen
+     */
+    private fun tap(
+        point: Position,
+        callback: GestureResultCallback? = null
+    ) {
+        val path = Path()
+        path.moveTo(point.x, point.y)
+        path.lineTo(point.x + 1, point.y + 1)
+        val gesture = GestureDescription.Builder()
+        gesture.addStroke(GestureDescription.StrokeDescription(path, 0, 50))
+        dispatchGesture(gesture.build(), callback, null)
+    }
+
+    /**
+     * Long press on the screen
+     */
+    private fun longTap(
+        point: Position,
+        callback: GestureResultCallback? = null
+    ) {
+        val path = Path()
+        path.moveTo(point.x, point.y)
+        path.lineTo(point.x + 1, point.y + 1)
+        val gesture = GestureDescription.Builder()
+        gesture.addStroke(GestureDescription.StrokeDescription(path, 0, 1000))
+        dispatchGesture(gesture.build(), callback, null)
+    }
+
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        return
     }
 
     override fun onInterrupt() {
