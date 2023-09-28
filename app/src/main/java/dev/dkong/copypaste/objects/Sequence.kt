@@ -5,17 +5,14 @@ import dev.dkong.copypaste.accessibility.ReplayAccessibilityService
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-sealed class ExecutableAction(action: Action) {
+sealed class ExecutableAction(val service: ReplayAccessibilityService, val action: Action) {
     abstract fun execute(
-        service: ReplayAccessibilityService,
-        action: Action,
         callback: GestureResultCallback? = null
     )
 
-    class SwipeAction(action: Action) : ExecutableAction(action) {
+    class SwipeAction(service: ReplayAccessibilityService, action: Action) :
+        ExecutableAction(service, action) {
         override fun execute(
-            service: ReplayAccessibilityService,
-            action: Action,
             callback: GestureResultCallback?
         ) {
             service.swipe(
@@ -26,13 +23,24 @@ sealed class ExecutableAction(action: Action) {
         }
     }
 
-    class TapAction(action: Action) : ExecutableAction(action) {
+    class TapAction(service: ReplayAccessibilityService, action: Action) :
+        ExecutableAction(service, action) {
         override fun execute(
-            service: ReplayAccessibilityService,
-            action: Action,
             callback: GestureResultCallback?
         ) {
             service.tap(
+                action.taps.first(),
+                callback
+            )
+        }
+    }
+
+    class LongTapAction(service: ReplayAccessibilityService, action: Action) :
+        ExecutableAction(service, action) {
+        override fun execute(
+            callback: GestureResultCallback?
+        ) {
+            service.longTap(
                 action.taps.first(),
                 callback
             )
@@ -60,6 +68,16 @@ data class Action(
     enum class ActionType {
         @SerialName("SWIPE")
         Swipe
+    }
+
+    /**
+     * Get an executable action for this parsed action
+     */
+    fun toExecutableAction(service: ReplayAccessibilityService): ExecutableAction? {
+        return when (actType) {
+            ActionType.Swipe -> ExecutableAction.SwipeAction(service, this)
+            else -> null
+        }
     }
 
     override fun toString(): String {

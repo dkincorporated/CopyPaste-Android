@@ -1,9 +1,11 @@
 package dev.dkong.copypaste.utils
 
+import android.util.Log
 import dev.dkong.copypaste.objects.Sequence
+import kotlin.properties.Delegates
 
 class SequenceNotLoadedException :
-    Exception(message = "Cannot start execution without a sequence set.")
+    Exception("Cannot start execution without a sequence set.")
 
 enum class ExecutionStep {
     None,
@@ -18,14 +20,32 @@ enum class ExecutionStep {
  */
 object ExecutionManager {
     /**
+     * Listeners subscribed to changes in the execution step
+     */
+    var stepChangeListeners = ArrayList<(newStep: ExecutionStep) -> Unit>()
+
+    /**
      * The current progress of the sequence execution
      */
-    var step: ExecutionStep = ExecutionStep.None
+    var step by Delegates.observable(ExecutionStep.None) { _, _, newValue ->
+        stepChangeListeners.forEach { listener ->
+            listener(newValue)
+        }
+    }
+
+    /**
+     * Listeners subscribed to changes in the set sequence
+     */
+    var sequenceChangeListeners = ArrayList<(newSequence: Sequence?) -> Unit>()
 
     /**
      * The current sequence either ready to be or being executed
      */
-    private var currentSequence: Sequence? = null
+    var currentSequence: Sequence? by Delegates.observable(null) { _, _, newValue ->
+        sequenceChangeListeners.forEach { listener ->
+            listener(newValue)
+        }
+    }
 
     /**
      * Whether there is a sequence being executed
@@ -48,6 +68,7 @@ object ExecutionManager {
         if (currentSequence == null) throw SequenceNotLoadedException()
         inProgress = true
         step = ExecutionStep.OpenApp
+        Log.i("EXEC MAN", "Execution started!")
     }
 
     /**
@@ -55,5 +76,6 @@ object ExecutionManager {
      */
     fun stop() {
         inProgress = false
+        step = ExecutionStep.None
     }
 }

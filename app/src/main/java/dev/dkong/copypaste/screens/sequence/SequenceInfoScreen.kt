@@ -38,6 +38,7 @@ import dev.dkong.copypaste.composables.LargeTopAppbarScaffold
 import dev.dkong.copypaste.composables.SectionHeading
 import dev.dkong.copypaste.objects.Sequence
 import dev.dkong.copypaste.utils.ActionManager
+import dev.dkong.copypaste.utils.ExecutionManager
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.format.DateTimeFormatter
@@ -95,7 +96,12 @@ fun SequenceInfoScreen(
                 },
                 floatingActionButton = {
                     FloatingActionButton(
-                        onClick = { /*TODO*/ },
+                        onClick = {
+                            sequence?.let { s ->
+                                ExecutionManager.setUpSequence(s)
+                                ExecutionManager.start()
+                            }
+                        },
                         containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
                         elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
                     ) {

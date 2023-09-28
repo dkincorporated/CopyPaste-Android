@@ -14,6 +14,7 @@ import androidx.compose.animation.expandIn
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,17 +37,22 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.AndroidUiDispatcher
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.compositionContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelStore
@@ -55,109 +61,110 @@ import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import coil.compose.ImagePainter
+import dev.dkong.copypaste.R
+import dev.dkong.copypaste.objects.Action
 import dev.dkong.copypaste.objects.Position
+import dev.dkong.copypaste.objects.Sequence
+import dev.dkong.copypaste.utils.ActionManager
+import dev.dkong.copypaste.utils.ExecutionManager
+import dev.dkong.copypaste.utils.ExecutionStep
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class ReplayAccessibilityService : AccessibilityService() {
     private fun actionView(): ComposeView {
         val view = ComposeView(this)
+        val actionTimer = (0..Int.MAX_VALUE)
+            .asSequence()
+            .asFlow()
+            .onEach { delay(500L) }
         view.setContent {
+            val scope = rememberCoroutineScope()
+            /**
+             * The current progress through the actions inside the sequence
+             */
+            var actionIndex by remember { mutableStateOf(0) }
+            var actionStep by remember { mutableStateOf(ExecutionManager.step) }
+            ExecutionManager.stepChangeListeners.add { newStep -> actionStep = newStep }
+            var sequenceActions = remember { mutableStateListOf<Action>() }
+            ExecutionManager.sequenceChangeListeners.add { newSequence ->
+                newSequence?.result?.let { r ->
+                    sequenceActions.clear()
+                    sequenceActions.addAll(r)
+                    actionIndex = 0
+                }
+            }
             var actionInProgress by remember { mutableStateOf(false) }
-            Box(
-                modifier = Modifier
-                    .clip(
-                        RoundedCornerShape(
-                            topStart = 0.dp,
-                            topEnd = 16.dp,
-                            bottomStart = 0.dp,
-                            bottomEnd = 16.dp
+//            if (actionStep in ExecutionStep.SetUp..ExecutionStep.InProgress) {
+            if (actionStep < ExecutionStep.Complete) {
+                Box(
+                    modifier = Modifier
+                        .clip(
+                            RoundedCornerShape(
+                                topStart = 0.dp,
+                                topEnd = 8.dp,
+                                bottomStart = 0.dp,
+                                bottomEnd = 8.dp
+                            )
                         )
-                    )
-                    .background(MaterialTheme.colorScheme.surface)
-                    .padding(16.dp)
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                        .background(MaterialTheme.colorScheme.surface)
+                        .padding(8.dp)
                 ) {
-                    FloatingActionButton(
-                        onClick = {
-                            if (actionInProgress) return@FloatingActionButton
-                            actionInProgress = true
-                            swipe(
-                                from = Position(540f, 800f),
-                                to = Position(540f, 1600f),
-                                callback = object : GestureResultCallback() {
-                                    override fun onCompleted(gestureDescription: GestureDescription?) {
-                                        actionInProgress = false
-                                    }
-
-                                    override fun onCancelled(gestureDescription: GestureDescription?) {
-                                        actionInProgress = false
-                                    }
-                                })
-                        },
-                        elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Icon(
-                            if (actionInProgress) Icons.Default.Warning else Icons.Default.KeyboardArrowUp,
-                            "Action"
-                        )
-                    }
-                    FloatingActionButton(
-                        onClick = {
-                            if (actionInProgress) return@FloatingActionButton
-                            actionInProgress = true
-                            swipe(
-                                from = Position(540f, 1600f),
-                                to = Position(540f, 800f),
-                                callback = object : GestureResultCallback() {
-                                    override fun onCompleted(gestureDescription: GestureDescription?) {
-                                        actionInProgress = false
+                        // Waiting for app to be opened
+                        if (actionStep == ExecutionStep.OpenApp) {
+                            FloatingActionButton(
+                                onClick = {
+                                    ExecutionManager.step = ExecutionStep.InProgress
+                                },
+                                elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
+                            ) {
+                                Image(
+                                    painterResource(id = R.drawable.outline_play_arrow_24),
+                                    "Action"
+                                )
+                            }
+                        }
+                        if (actionStep == ExecutionStep.InProgress) {
+                            // Run a flow to execute the actions
+                            LaunchedEffect(Unit) {
+                                actionTimer.collect {
+                                    if (actionInProgress) return@collect
+                                    // Replay the next action (for now)
+                                    if (actionIndex >= sequenceActions.size) {
+                                        // We have finished replaying the actions
+                                        ExecutionManager.stop()
+                                        return@collect
                                     }
-
-                                    override fun onCancelled(gestureDescription: GestureDescription?) {
-                                        onCompleted(gestureDescription)
-                                    }
+                                    // Execute the action
+                                    val executingAction = sequenceActions[actionIndex]
+                                    actionInProgress = true
+                                    executingAction.toExecutableAction(this@ReplayAccessibilityService)
+                                        ?.execute(
+                                            object : GestureResultCallback() {
+                                                override fun onCompleted(gestureDescription: GestureDescription?) {
+                                                    // Gesture finished; continue
+                                                    actionInProgress = false
+                                                }
+                                            }
+                                        )
+                                    actionIndex += 1
                                 }
-                            )
-                        },
-                        elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
-                    ) {
-                        Icon(
-                            if (actionInProgress) Icons.Default.Warning else Icons.Default.KeyboardArrowDown,
-                            "Action"
-                        )
+                            }
+                            OutlinedButton(onClick = {
+                                ExecutionManager.stop()
+                            }, enabled = !actionInProgress) {
+                                Text("Stop", color = MaterialTheme.colorScheme.error)
+                            }
+                        }
                     }
-                    FloatingActionButton(
-                        onClick = {
-                            if (actionInProgress) return@FloatingActionButton
-                            actionInProgress = true
-                            longTap(
-                                point = Position(540f, 1000f),
-                                callback = object : GestureResultCallback() {
-                                    override fun onCompleted(gestureDescription: GestureDescription?) {
-                                        actionInProgress = false
-                                    }
-
-                                    override fun onCancelled(gestureDescription: GestureDescription?) {
-                                        onCompleted(gestureDescription)
-                                    }
-                                }
-                            )
-                        },
-                        elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
-                    ) {
-                        Icon(
-                            if (actionInProgress) Icons.Default.Warning else Icons.Default.Add,
-                            "Action"
-                        )
-                    }
-//                    OutlinedButton(onClick = {}, enabled = !actionInProgress) {
-//                        Text("Stop", color = MaterialTheme.colorScheme.error)
-//                    }
-                    Text(if (actionInProgress) "Playing" else "Idle")
                 }
             }
         }
@@ -167,32 +174,37 @@ class ReplayAccessibilityService : AccessibilityService() {
     private fun infoView(): ComposeView {
         val view = ComposeView(this)
         view.setContent {
-            var showPrompt by remember { mutableStateOf(true) }
-            Box(
-                modifier = Modifier
-                    .clip(
-                        RoundedCornerShape(
-                            topStart = 0.dp,
-                            topEnd = 0.dp,
-                            bottomStart = 16.dp,
-                            bottomEnd = 16.dp
+            var actionStep by remember { mutableStateOf(ExecutionManager.step) }
+            var actionInProgress by remember { mutableStateOf(false) }
+            ExecutionManager.stepChangeListeners.add { newStep -> actionStep = newStep }
+            var prompt by remember { mutableStateOf("") }
+            prompt = when (actionStep) {
+                ExecutionStep.None -> "Idle"
+                ExecutionStep.OpenApp -> "Open the app"
+                ExecutionStep.InProgress -> "Replaying"
+                else -> ""
+            }
+            if (prompt != "") {
+                Box(
+                    modifier = Modifier
+                        .clip(
+                            RoundedCornerShape(
+                                topStart = 0.dp,
+                                topEnd = 0.dp,
+                                bottomStart = 16.dp,
+                                bottomEnd = 16.dp
+                            )
                         )
-                    )
-                    .background(MaterialTheme.colorScheme.surface)
-                    .padding(16.dp)
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    if (showPrompt) {
+                        .background(MaterialTheme.colorScheme.surface)
+                        .padding(16.dp)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
-                                text = "Open the app",
+                                text = prompt,
                                 style = MaterialTheme.typography.headlineSmall,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
-//                            Text(
-//                                text = "I was not able to find it myself.",
-//                                color = MaterialTheme.colorScheme.onSurfaceVariant
-//                            )
                         }
                     }
                 }
@@ -202,7 +214,6 @@ class ReplayAccessibilityService : AccessibilityService() {
     }
 
     override fun onServiceConnected() {
-        super.onServiceConnected()
         // Render the UI
 
         // Partly based on
@@ -285,13 +296,14 @@ class ReplayAccessibilityService : AccessibilityService() {
      */
     fun longTap(
         point: Position,
-        callback: GestureResultCallback? = null
+        callback: GestureResultCallback? = null,
+        duration: Long = 1000
     ) {
         val path = Path()
         path.moveTo(point.x, point.y)
         path.lineTo(point.x + 1, point.y + 1)
         val gesture = GestureDescription.Builder()
-        gesture.addStroke(GestureDescription.StrokeDescription(path, 0, 1000))
+        gesture.addStroke(GestureDescription.StrokeDescription(path, 0, duration))
         dispatchGesture(gesture.build(), callback, null)
     }
 

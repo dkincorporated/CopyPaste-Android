@@ -48,6 +48,7 @@ import dev.dkong.copypaste.objects.Sequence
 import dev.dkong.copypaste.objects.Action
 import dev.dkong.copypaste.objects.Position
 import dev.dkong.copypaste.utils.ActionManager
+import dev.dkong.copypaste.utils.ExecutionManager
 import kotlinx.coroutines.launch
 
 @Composable
@@ -234,7 +235,10 @@ fun SequenceCard(sequence: Sequence, navHostController: NavHostController) {
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
-            FilledTonalIconButton(onClick = { /*TODO*/ }) {
+            FilledTonalIconButton(onClick = {
+                ExecutionManager.setUpSequence(sequence)
+                ExecutionManager.start()
+            }) {
                 Icon(Icons.Default.PlayArrow, Icons.Default.PlayArrow.name)
             }
         }
