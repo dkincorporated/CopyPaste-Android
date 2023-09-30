@@ -9,6 +9,7 @@ import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityNodeInfo
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandIn
 import androidx.compose.animation.expandVertically
@@ -67,6 +68,7 @@ import dev.dkong.copypaste.objects.Action
 import dev.dkong.copypaste.objects.Position
 import dev.dkong.copypaste.objects.Sequence
 import dev.dkong.copypaste.utils.ActionManager
+import dev.dkong.copypaste.utils.EditDistance
 import dev.dkong.copypaste.utils.ExecutionManager
 import dev.dkong.copypaste.utils.ExecutionStep
 import kotlinx.coroutines.CoroutineScope
@@ -76,6 +78,8 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class ReplayAccessibilityService : AccessibilityService() {
+    private var screenNodes: AccessibilityNodeInfo? = null
+
     private fun actionView(): ComposeView {
         val view = ComposeView(this)
         val actionTimer = (0..Int.MAX_VALUE)
@@ -90,7 +94,7 @@ class ReplayAccessibilityService : AccessibilityService() {
             var actionIndex by remember { mutableStateOf(0) }
             var actionStep by remember { mutableStateOf(ExecutionManager.step) }
             ExecutionManager.stepChangeListeners.add { newStep -> actionStep = newStep }
-            var sequenceActions = remember { mutableStateListOf<Action>() }
+            val sequenceActions = remember { mutableStateListOf<Action>() }
             ExecutionManager.sequenceChangeListeners.add { newSequence ->
                 newSequence?.result?.let { r ->
                     sequenceActions.clear()
@@ -137,6 +141,11 @@ class ReplayAccessibilityService : AccessibilityService() {
                             LaunchedEffect(Unit) {
                                 actionTimer.collect {
                                     if (actionInProgress) return@collect
+                                    if (ExecutionManager.intervention) {
+                                        // User needs to intervene the action; wait
+
+                                        return@collect
+                                    }
                                     // Replay the next action (for now)
                                     if (actionIndex >= sequenceActions.size) {
                                         // We have finished replaying the actions
@@ -152,6 +161,22 @@ class ReplayAccessibilityService : AccessibilityService() {
                                                 override fun onCompleted(gestureDescription: GestureDescription?) {
                                                     // Gesture finished; continue
                                                     actionInProgress = false
+                                                    // Read the screen contents
+                                                    if (executingAction.actType == Action.ActionType.Tap) {
+                                                        // Only check the screen if it was a tap (screen transition), because edit distance is O(n^2)
+                                                        screenNodes?.let { n ->
+                                                            // Note: For performance reasons, only the first 50 characters are computed
+                                                            val distanceLength = 50
+                                                            val editDistance = EditDistance.editDistance(nodeToText(n).substring(0, distanceLength), executingAction.resultingScreenOcr.substring(0, distanceLength)).toFloat() / distanceLength
+                                                            // The greater the edit distance, the less of a match
+                                                            val distanceThreshold = 0.15f
+                                                            Log.d(
+                                                                "REPLAY",
+                                                                "Edit distance: ${(1 - editDistance) * 100}% match"
+                                                            )
+                                                            // TODO: Decide whether intervention is needed
+                                                        }
+                                                    }
                                                 }
 
                                                 override fun onCancelled(gestureDescription: GestureDescription?) {
@@ -311,7 +336,31 @@ class ReplayAccessibilityService : AccessibilityService() {
         dispatchGesture(gesture.build(), callback, null)
     }
 
+    /**
+     * Listen for specific accessibility events
+     */
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+        when (event?.eventType) {
+            AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> {
+                screenNodes = rootInActiveWindow
+            }
+        }
+    }
+
+    /**
+     * Convert a node's content to a string, recursively
+     */
+    private fun nodeToText(node: AccessibilityNodeInfo): String {
+        var childrenText = ""
+        for (i in 0 until node.childCount) {
+            try {
+                childrenText += nodeToText(node.getChild(i))
+            } catch(e: NullPointerException) {
+                continue
+            }
+        }
+        val nodeText = if (node.text == null) "" else node.text.toString()
+        return nodeText + childrenText
     }
 
     override fun onInterrupt() {

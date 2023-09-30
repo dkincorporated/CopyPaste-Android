@@ -41,7 +41,7 @@ object ExecutionManager {
     /**
      * The current sequence either ready to be or being executed
      */
-    var currentSequence: Sequence? by Delegates.observable(null) { _, _, newValue ->
+    private var currentSequence: Sequence? by Delegates.observable(null) { _, _, newValue ->
         sequenceChangeListeners.forEach { listener ->
             listener(newValue)
         }
@@ -51,6 +51,11 @@ object ExecutionManager {
      * Whether there is a sequence being executed
      */
     private var inProgress: Boolean = false
+
+    /**
+     * Whether a user needs to intervene the execution
+     */
+    var intervention: Boolean = false
 
     /**
      * Set up a new sequence to be executed

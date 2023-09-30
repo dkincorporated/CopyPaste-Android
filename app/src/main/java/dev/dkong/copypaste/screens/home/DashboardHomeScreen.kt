@@ -182,7 +182,7 @@ fun DashboardHomeScreen(
                                     Action(
                                         actType = Action.ActionType.Swipe,
                                         firstFrame = -1,
-                                        resultingScreenOcr = "",
+                                        resultingScreenOcr = "SettingsSearch settingsNetwork & internetMobile, Wi‑Fi, hotspotConnected devicesBluetooth, pairingAppsAssistant, recent apps, default appsNotificationsNotification history, conversationsBattery100%Storage48% used - 4.20 GB freeSound & vibrationVolume, haptics, Do Not DisturbDisplayDark theme, font size, brightnessWallpaper & styleColors, themed icons, app gridAccessibilityDisplay, interaction, audioSecurity & privacyApp security, device lock, permissionsLocationOn - 4 apps have access to locationSafety & emergencyEmergency SOS, medical info, alerts",
                                         taps = arrayOf(
                                             Position(540f, 1800f),
                                             Position(540f, 1400f)
@@ -191,7 +191,7 @@ fun DashboardHomeScreen(
                                     Action(
                                         actType = Action.ActionType.Tap,
                                         firstFrame = -1,
-                                        resultingScreenOcr = "",
+                                        resultingScreenOcr = "SettingsSearch settingsNetwork & internetMobile, Wi‑Fi, hotspotConnected devicesBluetooth, pairingAppsAssistant, recent apps, default appsNotificationsNotification history, conversationsBattery100%Storage48% used - 4.20 GB freeSound & vibrationVolume, haptics, Do Not DisturbDisplayDark theme, font size, brightnessWallpaper & styleColors, themed icons, app gridAccessibilityDisplay, interaction, audioSecurity & privacyApp security, device lock, permissionsLocationOn - 4 apps have access to locationSafety & emergencyEmergency SOS, medical info, alerts",
                                         taps = arrayOf(
                                             Position(540f, 950f)
                                         )
@@ -199,7 +199,7 @@ fun DashboardHomeScreen(
                                     Action(
                                         actType = Action.ActionType.Swipe,
                                         firstFrame = -1,
-                                        resultingScreenOcr = "",
+                                        resultingScreenOcr = "NotificationsNotification historyShow recent and snoozed notificationsConversationConversationsNo priority conversationsBubblesOn / Conversations can appear as floating iconsPrivacyDevice & app notificationsControl which apps and devices can read notificationsNotifications on lock screenHide silent conversations and notificationsGeneralDo Not DisturbOffFlash notificationsOn / Screen flashWireless emergency alertsHide silent notifications in status barAllow notification snoozing",
                                         taps = arrayOf(
                                             Position(540f, 2100f),
                                             Position(540f, 500f),
@@ -208,7 +208,7 @@ fun DashboardHomeScreen(
                                     Action(
                                         actType = Action.ActionType.Tap,
                                         firstFrame = -1,
-                                        resultingScreenOcr = "",
+                                        resultingScreenOcr = "NotificationsBubblesOn / Conversations can appear as floating iconsPrivacyDevice & app notificationsControl which apps and devices can read notificationsNotifications on lock screenHide silent conversations and notificationsGeneralDo Not DisturbOffFlash notificationsOn / Screen flashWireless emergency alertsHide silent notifications in status barAllow notification snoozingNotification dot on app iconEnhanced notificationsGet suggested actions, replies, and more",
                                         taps = arrayOf(
                                             Position(540f, 1350f)
                                         )
@@ -216,7 +216,7 @@ fun DashboardHomeScreen(
                                     Action(
                                         actType = Action.ActionType.Tap,
                                         firstFrame = -1,
-                                        resultingScreenOcr = "",
+                                        resultingScreenOcr = "Flash notificationsFlash the screen when you receive notifications or when alarms soundScreen flashYellowPreviewUse flash notifications with caution if you're light sensitive",
                                         taps = arrayOf(
                                             Position(969f, 1520f)
                                         )
