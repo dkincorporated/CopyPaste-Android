@@ -81,7 +81,7 @@ class ReplayAccessibilityService : AccessibilityService() {
         val actionTimer = (0..Int.MAX_VALUE)
             .asSequence()
             .asFlow()
-            .onEach { delay(500L) }
+            .onEach { delay(1000L) }
         view.setContent {
             val scope = rememberCoroutineScope()
             /**
@@ -152,6 +152,10 @@ class ReplayAccessibilityService : AccessibilityService() {
                                                 override fun onCompleted(gestureDescription: GestureDescription?) {
                                                     // Gesture finished; continue
                                                     actionInProgress = false
+                                                }
+
+                                                override fun onCancelled(gestureDescription: GestureDescription?) {
+                                                    onCompleted(gestureDescription)
                                                 }
                                             }
                                         )

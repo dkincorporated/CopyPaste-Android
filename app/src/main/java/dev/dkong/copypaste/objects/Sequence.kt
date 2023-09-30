@@ -67,7 +67,11 @@ data class Action(
     @Serializable
     enum class ActionType {
         @SerialName("SWIPE")
-        Swipe
+        Swipe,
+        @SerialName("TAP")
+        Tap,
+        @SerialName("LONG_TAP")
+        LongTap
     }
 
     /**
@@ -76,6 +80,8 @@ data class Action(
     fun toExecutableAction(service: ReplayAccessibilityService): ExecutableAction? {
         return when (actType) {
             ActionType.Swipe -> ExecutableAction.SwipeAction(service, this)
+            ActionType.Tap -> ExecutableAction.TapAction(service, this)
+            ActionType.LongTap -> ExecutableAction.LongTapAction(service, this)
             else -> null
         }
     }

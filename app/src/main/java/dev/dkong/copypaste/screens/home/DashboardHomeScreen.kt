@@ -176,18 +176,49 @@ fun DashboardHomeScreen(
                             Sequence(
                                 id = System.currentTimeMillis() / 1000,
                                 creationTime = System.currentTimeMillis() / 1000,
-                                name = "Test sequence",
+                                name = "Toggle flash notifications",
                                 status = "SUCCESS",
                                 result = arrayOf(
                                     Action(
                                         actType = Action.ActionType.Swipe,
-                                        firstFrame = 13,
-                                        resultingScreenOcr = "NeverGonnaGiveYouUpNeverGonnaLetYouDown",
+                                        firstFrame = -1,
+                                        resultingScreenOcr = "",
                                         taps = arrayOf(
-                                            Position(1f, 3f),
-                                            Position(2f, 4f),
-                                            Position(3f, 5f),
-                                            Position(4f, 6f)
+                                            Position(540f, 1800f),
+                                            Position(540f, 1400f)
+                                        )
+                                    ),
+                                    Action(
+                                        actType = Action.ActionType.Tap,
+                                        firstFrame = -1,
+                                        resultingScreenOcr = "",
+                                        taps = arrayOf(
+                                            Position(540f, 950f)
+                                        )
+                                    ),
+                                    Action(
+                                        actType = Action.ActionType.Swipe,
+                                        firstFrame = -1,
+                                        resultingScreenOcr = "",
+                                        taps = arrayOf(
+                                            Position(540f, 2100f),
+                                            Position(540f, 500f),
+                                        )
+                                    ),
+                                    Action(
+                                        actType = Action.ActionType.Tap,
+                                        firstFrame = -1,
+                                        resultingScreenOcr = "",
+                                        taps = arrayOf(
+                                            Position(540f, 1350f)
+                                        )
+                                    ),
+                                    Action(
+                                        actType = Action.ActionType.Tap,
+                                        firstFrame = -1,
+                                        resultingScreenOcr = "",
+                                        taps = arrayOf(
+                                            Position(969f, 1520f)
                                         )
                                     )
                                 )
