@@ -52,10 +52,16 @@ object ExecutionManager {
      */
     private var inProgress: Boolean = false
 
+    var interventionChangeListeners = ArrayList<(newIntervention: Boolean) -> Unit>()
+
     /**
      * Whether a user needs to intervene the execution
      */
-    var intervention: Boolean = false
+    var intervention: Boolean by Delegates.observable(false) { _, _, newValue ->
+        interventionChangeListeners.forEach { listener ->
+            listener(newValue)
+        }
+    }
 
     /**
      * Set up a new sequence to be executed
@@ -81,6 +87,7 @@ object ExecutionManager {
      */
     fun stop() {
         inProgress = false
+        intervention = false
         step = ExecutionStep.None
     }
 }

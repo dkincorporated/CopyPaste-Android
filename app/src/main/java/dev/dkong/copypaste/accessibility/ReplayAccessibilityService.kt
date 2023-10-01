@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.PlayArrow
@@ -69,6 +70,7 @@ import dev.dkong.copypaste.objects.Position
 import dev.dkong.copypaste.objects.Sequence
 import dev.dkong.copypaste.utils.ActionManager
 import dev.dkong.copypaste.utils.EditDistance
+import dev.dkong.copypaste.utils.EditDistance.min
 import dev.dkong.copypaste.utils.ExecutionManager
 import dev.dkong.copypaste.utils.ExecutionStep
 import kotlinx.coroutines.CoroutineScope
@@ -76,10 +78,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlin.math.min
 
 class ReplayAccessibilityService : AccessibilityService() {
-    private var screenNodes: AccessibilityNodeInfo? = null
-
     private fun actionView(): ComposeView {
         val view = ComposeView(this)
         val actionTimer = (0..Int.MAX_VALUE)
@@ -87,13 +88,16 @@ class ReplayAccessibilityService : AccessibilityService() {
             .asFlow()
             .onEach { delay(1000L) }
         view.setContent {
-            val scope = rememberCoroutineScope()
             /**
              * The current progress through the actions inside the sequence
              */
             var actionIndex by remember { mutableStateOf(0) }
             var actionStep by remember { mutableStateOf(ExecutionManager.step) }
+            var actionIntervention by remember { mutableStateOf(ExecutionManager.intervention) }
             ExecutionManager.stepChangeListeners.add { newStep -> actionStep = newStep }
+            ExecutionManager.interventionChangeListeners.add { newIntervention ->
+                actionIntervention = newIntervention
+            }
             val sequenceActions = remember { mutableStateListOf<Action>() }
             ExecutionManager.sequenceChangeListeners.add { newSequence ->
                 newSequence?.result?.let { r ->
@@ -103,7 +107,6 @@ class ReplayAccessibilityService : AccessibilityService() {
                 }
             }
             var actionInProgress by remember { mutableStateOf(false) }
-//            if (actionStep in ExecutionStep.SetUp..ExecutionStep.InProgress) {
             if (actionStep < ExecutionStep.Complete) {
                 Box(
                     modifier = Modifier
@@ -141,19 +144,59 @@ class ReplayAccessibilityService : AccessibilityService() {
                             LaunchedEffect(Unit) {
                                 actionTimer.collect {
                                     if (actionInProgress) return@collect
-                                    if (ExecutionManager.intervention) {
-                                        // User needs to intervene the action; wait
-
-                                        return@collect
-                                    }
                                     // Replay the next action (for now)
                                     if (actionIndex >= sequenceActions.size) {
                                         // We have finished replaying the actions
                                         ExecutionManager.stop()
                                         return@collect
                                     }
-                                    // Execute the action
                                     val executingAction = sequenceActions[actionIndex]
+                                    if (ExecutionManager.intervention) {
+                                        // User needs to intervene the action; wait
+                                        return@collect
+                                    } else {
+                                        val previousAction =
+                                            sequenceActions[maxOf(0, actionIndex - 1)]
+                                        // If previous trigger was a tap, check whether the screen is correct
+                                        if (previousAction.actType == Action.ActionType.Tap) {
+                                            // Read the screen contents
+                                            rootInActiveWindow?.let { n ->
+                                                val distanceLength = 1000
+                                                val screenContent =
+                                                    nodeToText(n).substring(
+                                                        0,
+                                                        min(
+                                                            distanceLength,
+                                                            nodeToText(n).length
+                                                        )
+                                                    )
+                                                val editDistance =
+                                                    EditDistance.editDistance(
+                                                        screenContent,
+                                                        executingAction.resultingScreenOcr.substring(
+                                                            0,
+                                                            min(
+                                                                distanceLength,
+                                                                executingAction.resultingScreenOcr.length
+                                                            )
+                                                        )
+                                                    ).toFloat() / distanceLength
+                                                // The greater the edit distance, the less of a match
+                                                val distanceThreshold = 0.2f
+//                                                Log.d(
+//                                                    "REPLAY",
+//                                                    "Screen is ${(1 - editDistance) * 100}% match"
+//                                                )
+                                                if (editDistance > distanceThreshold) {
+                                                    // The screen is not a match; user needs to intervene
+                                                    performGlobalAction(GLOBAL_ACTION_BACK)
+                                                    ExecutionManager.intervention = true
+                                                    return@collect
+                                                }
+                                            }
+                                        }
+                                    }
+                                    // Execute the action
                                     actionInProgress = true
                                     executingAction.toExecutableAction(this@ReplayAccessibilityService)
                                         ?.execute(
@@ -161,22 +204,6 @@ class ReplayAccessibilityService : AccessibilityService() {
                                                 override fun onCompleted(gestureDescription: GestureDescription?) {
                                                     // Gesture finished; continue
                                                     actionInProgress = false
-                                                    // Read the screen contents
-                                                    if (executingAction.actType == Action.ActionType.Tap) {
-                                                        // Only check the screen if it was a tap (screen transition), because edit distance is O(n^2)
-                                                        screenNodes?.let { n ->
-                                                            // Note: For performance reasons, only the first 50 characters are computed
-                                                            val distanceLength = 50
-                                                            val editDistance = EditDistance.editDistance(nodeToText(n).substring(0, distanceLength), executingAction.resultingScreenOcr.substring(0, distanceLength)).toFloat() / distanceLength
-                                                            // The greater the edit distance, the less of a match
-                                                            val distanceThreshold = 0.15f
-                                                            Log.d(
-                                                                "REPLAY",
-                                                                "Edit distance: ${(1 - editDistance) * 100}% match"
-                                                            )
-                                                            // TODO: Decide whether intervention is needed
-                                                        }
-                                                    }
                                                 }
 
                                                 override fun onCancelled(gestureDescription: GestureDescription?) {
@@ -185,6 +212,17 @@ class ReplayAccessibilityService : AccessibilityService() {
                                             }
                                         )
                                     actionIndex += 1
+                                }
+                            }
+                            if (actionIntervention) {
+                                // Show the intervention completion button
+                                FloatingActionButton(
+                                    onClick = {
+                                        ExecutionManager.intervention = false
+                                    },
+                                    elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
+                                ) {
+                                    Icon(Icons.Default.Check, "Done")
                                 }
                             }
                             OutlinedButton(onClick = {
@@ -205,6 +243,10 @@ class ReplayAccessibilityService : AccessibilityService() {
         view.setContent {
             var actionStep by remember { mutableStateOf(ExecutionManager.step) }
             var actionInProgress by remember { mutableStateOf(false) }
+            var actionIntervention by remember { mutableStateOf(ExecutionManager.intervention) }
+            ExecutionManager.interventionChangeListeners.add { newIntervention ->
+                actionIntervention = newIntervention
+            }
             ExecutionManager.stepChangeListeners.add { newStep -> actionStep = newStep }
             var prompt by remember { mutableStateOf("") }
             prompt = when (actionStep) {
@@ -212,6 +254,9 @@ class ReplayAccessibilityService : AccessibilityService() {
                 ExecutionStep.OpenApp -> "Open the app"
                 ExecutionStep.InProgress -> "Replaying"
                 else -> ""
+            }
+            if (actionIntervention) {
+                prompt = "Intervention required"
             }
             if (prompt != "") {
                 Box(
@@ -340,11 +385,11 @@ class ReplayAccessibilityService : AccessibilityService() {
      * Listen for specific accessibility events
      */
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        when (event?.eventType) {
-            AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> {
-                screenNodes = rootInActiveWindow
-            }
-        }
+//        when (event?.eventType) {
+//            AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> {
+//                screenNodes = rootInActiveWindow
+//            }
+//        }
     }
 
     /**
@@ -355,7 +400,7 @@ class ReplayAccessibilityService : AccessibilityService() {
         for (i in 0 until node.childCount) {
             try {
                 childrenText += nodeToText(node.getChild(i))
-            } catch(e: NullPointerException) {
+            } catch (e: NullPointerException) {
                 continue
             }
         }
