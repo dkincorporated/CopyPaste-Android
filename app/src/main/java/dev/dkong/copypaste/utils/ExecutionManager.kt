@@ -41,7 +41,7 @@ object ExecutionManager {
     /**
      * The current sequence either ready to be or being executed
      */
-    private var currentSequence: Sequence? by Delegates.observable(null) { _, _, newValue ->
+    var currentSequence: Sequence? by Delegates.observable(null) { _, _, newValue ->
         sequenceChangeListeners.forEach { listener ->
             listener(newValue)
         }

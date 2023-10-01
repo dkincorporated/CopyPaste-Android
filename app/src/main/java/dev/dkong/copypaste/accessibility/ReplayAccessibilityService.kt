@@ -100,6 +100,9 @@ class ReplayAccessibilityService : AccessibilityService() {
                 actionIntervention = newIntervention
             }
             val sequenceActions = remember { mutableStateListOf<Action>() }
+            if (sequenceActions.size == 0) {
+                sequenceActions.addAll(ExecutionManager.currentSequence?.result?.toList() ?: listOf())
+            }
             ExecutionManager.sequenceChangeListeners.add { newSequence ->
                 newSequence?.result?.let { r ->
                     sequenceActions.clear()
@@ -164,16 +167,19 @@ class ReplayAccessibilityService : AccessibilityService() {
                                             rootInActiveWindow?.let { n ->
                                                 val screenContent =
                                                     nodeToText(n)
-                                                val distanceLength = minOf(screenContent.length, executingAction.resultingScreenOcr.length)
+                                                val distanceLength = minOf(
+                                                    screenContent.length,
+                                                    executingAction.resultingScreenOcr.length
+                                                )
                                                 val editDistance =
                                                     EditDistance.editDistance(
                                                         screenContent.substring(0, distanceLength),
                                                         executingAction.resultingScreenOcr
                                                             .substring(
                                                                 0,
-                                                               distanceLength
+                                                                distanceLength
                                                             )
-                                                    // Subtract the difference in string length (due to DPI differences)
+                                                        // Subtract the difference in string length (due to DPI differences)
                                                     ).toFloat()
                                                 val mismatch = editDistance / distanceLength
                                                 // The greater the edit distance, the less of a match
