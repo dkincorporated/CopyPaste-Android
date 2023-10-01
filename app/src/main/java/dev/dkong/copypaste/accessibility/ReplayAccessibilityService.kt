@@ -78,6 +78,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 import kotlin.math.min
 
 class ReplayAccessibilityService : AccessibilityService() {
@@ -163,32 +164,32 @@ class ReplayAccessibilityService : AccessibilityService() {
                                             rootInActiveWindow?.let { n ->
                                                 val screenContent =
                                                     nodeToText(n)
-//                                                val distanceLength = minOf(
-//                                                    1000,
-//                                                    maxOf(
-//                                                        screenContent.length,
-//                                                        executingAction.resultingScreenOcr.length
-//                                                    )
-//                                                )
+                                                val distanceLength = minOf(screenContent.length, executingAction.resultingScreenOcr.length)
                                                 val editDistance =
                                                     EditDistance.editDistance(
-                                                        screenContent, // .substring(0, minOf(screenContent.length, distanceLength)),
+                                                        screenContent.substring(0, distanceLength),
                                                         executingAction.resultingScreenOcr
-//                                                            .substring(
-//                                                                0,
-//                                                                minOf(
-//                                                                    executingAction.resultingScreenOcr.length,
-//                                                                    distanceLength
-//                                                                )
-//                                                            )
+                                                            .substring(
+                                                                0,
+                                                               distanceLength
+                                                            )
+                                                    // Subtract the difference in string length (due to DPI differences)
                                                     ).toFloat()
-                                                val mismatch = editDistance / maxOf(screenContent.length, executingAction.resultingScreenOcr.length) // distanceLength
+                                                val mismatch = editDistance / distanceLength
                                                 // The greater the edit distance, the less of a match
                                                 val distanceThreshold = 0.5f
                                                 Log.d(
                                                     "REPLAY",
                                                     "Screen is ${(1 - mismatch) * 100}% match, distance is $editDistance"
                                                 )
+//                                                Log.d(
+//                                                    "REPLAY",
+//                                                    "Expected string is ${executingAction.resultingScreenOcr}"
+//                                                )
+//                                                Log.d(
+//                                                    "REPLAY",
+//                                                    "Actual string is $screenContent"
+//                                                )
                                                 if (mismatch > distanceThreshold) {
                                                     // The screen is not a match; user needs to intervene
                                                     performGlobalAction(GLOBAL_ACTION_BACK)
