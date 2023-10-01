@@ -161,33 +161,35 @@ class ReplayAccessibilityService : AccessibilityService() {
                                         if (previousAction.actType == Action.ActionType.Tap) {
                                             // Read the screen contents
                                             rootInActiveWindow?.let { n ->
-                                                val distanceLength = 1000
                                                 val screenContent =
-                                                    nodeToText(n).substring(
-                                                        0,
-                                                        min(
-                                                            distanceLength,
-                                                            nodeToText(n).length
-                                                        )
-                                                    )
+                                                    nodeToText(n)
+//                                                val distanceLength = minOf(
+//                                                    1000,
+//                                                    maxOf(
+//                                                        screenContent.length,
+//                                                        executingAction.resultingScreenOcr.length
+//                                                    )
+//                                                )
                                                 val editDistance =
                                                     EditDistance.editDistance(
-                                                        screenContent,
-                                                        executingAction.resultingScreenOcr.substring(
-                                                            0,
-                                                            min(
-                                                                distanceLength,
-                                                                executingAction.resultingScreenOcr.length
-                                                            )
-                                                        )
-                                                    ).toFloat() / distanceLength
+                                                        screenContent, // .substring(0, minOf(screenContent.length, distanceLength)),
+                                                        executingAction.resultingScreenOcr
+//                                                            .substring(
+//                                                                0,
+//                                                                minOf(
+//                                                                    executingAction.resultingScreenOcr.length,
+//                                                                    distanceLength
+//                                                                )
+//                                                            )
+                                                    ).toFloat()
+                                                val mismatch = editDistance / maxOf(screenContent.length, executingAction.resultingScreenOcr.length) // distanceLength
                                                 // The greater the edit distance, the less of a match
-                                                val distanceThreshold = 0.2f
-//                                                Log.d(
-//                                                    "REPLAY",
-//                                                    "Screen is ${(1 - editDistance) * 100}% match"
-//                                                )
-                                                if (editDistance > distanceThreshold) {
+                                                val distanceThreshold = 0.5f
+                                                Log.d(
+                                                    "REPLAY",
+                                                    "Screen is ${(1 - mismatch) * 100}% match, distance is $editDistance"
+                                                )
+                                                if (mismatch > distanceThreshold) {
                                                     // The screen is not a match; user needs to intervene
                                                     performGlobalAction(GLOBAL_ACTION_BACK)
                                                     ExecutionManager.intervention = true
