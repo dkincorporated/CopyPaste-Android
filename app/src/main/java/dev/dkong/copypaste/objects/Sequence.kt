@@ -11,7 +11,13 @@ sealed class ExecutableAction(val service: ReplayAccessibilityService, val actio
         callback: GestureResultCallback? = null
     )
 
-    class SwipeAction(service: ReplayAccessibilityService, private val sequence: Sequence, action: Action, val dimensions: Position) :
+    class SwipeAction(
+        service: ReplayAccessibilityService,
+        private val sequence: Sequence,
+        action: Action,
+        val dimensions: Position,
+        private val duration: Long = 250
+    ) :
         ExecutableAction(service, action) {
         override fun execute(
             callback: GestureResultCallback?
@@ -25,7 +31,8 @@ sealed class ExecutableAction(val service: ReplayAccessibilityService, val actio
                 service.swipe(
                     Position(action.taps.first().x * xScale, action.taps.first().y * yScale),
                     Position(action.taps.last().x * xScale, action.taps.last().y * yScale),
-                    callback
+                    callback,
+                    duration
                 )
                 return
             }
@@ -96,13 +103,24 @@ data class Action(
     /**
      * Get an executable action for this parsed action
      */
-    fun toExecutableAction(service: ReplayAccessibilityService, sequence: Sequence): ExecutableAction? {
+    fun toExecutableAction(
+        service: ReplayAccessibilityService,
+        sequence: Sequence,
+        duration: Long = 250 // for swipe actions only
+    ): ExecutableAction? {
         val dimensions = Position(
             Resources.getSystem().displayMetrics.widthPixels.toFloat(),
             Resources.getSystem().displayMetrics.heightPixels.toFloat()
         )
         return when (actType) {
-            ActionType.Swipe -> ExecutableAction.SwipeAction(service,  sequence,this, dimensions = dimensions)
+            ActionType.Swipe -> ExecutableAction.SwipeAction(
+                service,
+                sequence,
+                this,
+                dimensions = dimensions,
+                duration = duration
+            )
+
             ActionType.Tap -> ExecutableAction.TapAction(service, this)
             ActionType.LongTap -> ExecutableAction.LongTapAction(service, this)
             else -> null

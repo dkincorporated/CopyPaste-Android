@@ -173,7 +173,7 @@ fun DashboardHomeScreen(
                     scope.launch {
                         ActionManager.addSequence(
                             context,
-                            lockScreenSettings
+                            setTimer
                             )
                     }
                 }, modifier = Modifier.align(Alignment.CenterHorizontally)) {

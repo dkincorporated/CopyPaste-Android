@@ -65,6 +65,7 @@ import dev.dkong.copypaste.composables.SectionHeading
 import dev.dkong.copypaste.objects.Position
 import dev.dkong.copypaste.objects.Sequence
 import dev.dkong.copypaste.utils.ActionManager
+import dev.dkong.copypaste.utils.ConnectionManager
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -131,7 +132,7 @@ fun UploadScreen(navHostController: NavHostController) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    val rootUrl = "http://192.168.1.188:5000"
+    val rootUrl = "http://${ConnectionManager.serverAddress}:${ConnectionManager.serverPort}"
     var videoUri: Uri? by remember { mutableStateOf(null) }
     var uploadStatus: UploadStatus by remember { mutableStateOf(UploadStatus.NotSelected) }
     var statusUrl: String? by remember { mutableStateOf(null) }
@@ -208,6 +209,7 @@ fun UploadScreen(navHostController: NavHostController) {
             videoUri = uri
             uploadStatus = if (uri == null) UploadStatus.NotSelected else UploadStatus.Selected
             isFailed = false
+            if (uri == null) return@rememberLauncherForActivityResult
             val mediaRetriever = MediaMetadataRetriever()
             mediaRetriever.setDataSource(context, uri)
             videoWidth = mediaRetriever.extractMetadata(

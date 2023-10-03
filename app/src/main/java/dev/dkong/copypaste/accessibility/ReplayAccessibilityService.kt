@@ -102,7 +102,9 @@ class ReplayAccessibilityService : AccessibilityService() {
             var sequence by remember { mutableStateOf(ExecutionManager.currentSequence) }
             val sequenceActions = remember { mutableStateListOf<Action>() }
             if (sequenceActions.size == 0) {
-                sequenceActions.addAll(ExecutionManager.currentSequence?.result?.toList() ?: listOf())
+                sequenceActions.addAll(
+                    ExecutionManager.currentSequence?.result?.toList() ?: listOf()
+                )
             }
             ExecutionManager.sequenceChangeListeners.add { newSequence ->
                 sequence = newSequence
@@ -181,7 +183,6 @@ class ReplayAccessibilityService : AccessibilityService() {
                                                                 0,
                                                                 distanceLength
                                                             )
-                                                        // Subtract the difference in string length (due to DPI differences)
                                                     ).toFloat()
                                                 val mismatch = editDistance / distanceLength
                                                 // The greater the edit distance, the less of a match
@@ -210,20 +211,37 @@ class ReplayAccessibilityService : AccessibilityService() {
                                     // Execute the action
                                     actionInProgress = true
 
-                                    executingAction.toExecutableAction(this@ReplayAccessibilityService, sequence!!)
-                                        ?.execute(
-                                            object : GestureResultCallback() {
-                                                override fun onCompleted(gestureDescription: GestureDescription?) {
-                                                    // Gesture finished; continue
-                                                    actionInProgress = false
-                                                }
+                                    sequence?.let { seq ->
+                                        // Determine the duration of the gesture -- used to help with swipe acceleration timing
+                                        // Get the duration in frames based on the data
+                                        val frameDuration = if (actionIndex < sequenceActions.size - 1)
+                                            (seq.result?.get(actionIndex + 1)?.firstFrame?.minus(
+                                                executingAction.firstFrame
+                                            ) ?: 0L).toLong() else 0L
+                                        // Get the duration in milliseconds based on 30 frames per second
+                                        val realTimeDuration = frameDuration / 30L
+                                        if (executingAction.actType == Action.ActionType.Swipe)
+                                            Log.d("REPLAY", "Duration is $realTimeDuration")
 
-                                                override fun onCancelled(gestureDescription: GestureDescription?) {
-                                                    onCompleted(gestureDescription)
-                                                }
-                                            }
+                                        executingAction.toExecutableAction(
+                                            service = this@ReplayAccessibilityService,
+                                            sequence = seq,
+                                            duration = if (realTimeDuration > 0) realTimeDuration else 250L
                                         )
-                                    actionIndex += 1
+                                            ?.execute(
+                                                object : GestureResultCallback() {
+                                                    override fun onCompleted(gestureDescription: GestureDescription?) {
+                                                        // Gesture finished; continue
+                                                        actionInProgress = false
+                                                    }
+
+                                                    override fun onCancelled(gestureDescription: GestureDescription?) {
+                                                        onCompleted(gestureDescription)
+                                                    }
+                                                }
+                                            )
+                                        actionIndex += 1
+                                    }
                                 }
                             }
                             if (actionIntervention) {
