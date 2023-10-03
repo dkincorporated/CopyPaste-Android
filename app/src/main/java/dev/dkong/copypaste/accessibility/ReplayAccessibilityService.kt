@@ -196,12 +196,12 @@ class ReplayAccessibilityService : AccessibilityService() {
 //                                                    "REPLAY",
 //                                                    "Actual string is $screenContent"
 //                                                )
-                                                if (mismatch > distanceThreshold) {
-                                                    // The screen is not a match; user needs to intervene
-                                                    performGlobalAction(GLOBAL_ACTION_BACK)
-                                                    ExecutionManager.intervention = true
-                                                    return@collect
-                                                }
+//                                                if (mismatch > distanceThreshold) {
+//                                                    // The screen is not a match; user needs to intervene
+//                                                    performGlobalAction(GLOBAL_ACTION_BACK)
+//                                                    ExecutionManager.intervention = true
+//                                                    return@collect
+//                                                }
                                             }
                                         }
                                     }

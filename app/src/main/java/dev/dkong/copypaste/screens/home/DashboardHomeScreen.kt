@@ -173,7 +173,7 @@ fun DashboardHomeScreen(
                     scope.launch {
                         ActionManager.addSequence(
                             context,
-                            setTimer
+                            lockScreenSettings
                             )
                     }
                 }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
@@ -191,6 +191,7 @@ private val flashNotifications = Sequence(
     creationTime = System.currentTimeMillis() / 1000,
     name = "Toggle flash notifications",
     status = "SUCCESS",
+    dimensions = Position(1080f, 2340f),
     result = arrayOf(
         Action(
             actType = Action.ActionType.Swipe,
@@ -199,7 +200,8 @@ private val flashNotifications = Sequence(
             taps = arrayOf(
                 Position(540f, 1800f),
                 Position(540f, 1400f)
-            )
+            ),
+            dimensions = Position(1080f, 2340f)
         ),
         Action(
             actType = Action.ActionType.Tap,
@@ -207,7 +209,8 @@ private val flashNotifications = Sequence(
             resultingScreenOcr = "SettingsSearch settingsNetwork & internetMobile, Wi‑Fi, hotspotConnected devicesBluetooth, pairingAppsAssistant, recent apps, default appsNotificationsNotification history, conversationsBattery100%Storage48% used - 4.20 GB freeSound & vibrationVolume, haptics, Do Not DisturbDisplayDark theme, font size, brightnessWallpaper & styleColors, themed icons, app gridAccessibilityDisplay, interaction, audioSecurity & privacyApp security, device lock, permissionsLocationOn - 4 apps have access to locationSafety & emergencyEmergency SOS, medical info, alerts",
             taps = arrayOf(
                 Position(540f, 950f)
-            )
+            ),
+            dimensions = Position(1080f, 2340f)
         ),
         Action(
             actType = Action.ActionType.Swipe,
@@ -216,7 +219,8 @@ private val flashNotifications = Sequence(
             taps = arrayOf(
                 Position(540f, 2100f),
                 Position(540f, 500f),
-            )
+            ),
+            dimensions = Position(1080f, 2340f)
         ),
         Action(
             actType = Action.ActionType.Tap,
@@ -224,7 +228,8 @@ private val flashNotifications = Sequence(
             resultingScreenOcr = "NotificationsBubblesOn / Conversations can appear as floating iconsPrivacyDevice & app notificationsControl which apps and devices can read notificationsNotifications on lock screenHide silent conversations and notificationsGeneralDo Not DisturbOffFlash notificationsOn / Screen flashWireless emergency alertsHide silent notifications in status barAllow notification snoozingNotification dot on app iconEnhanced notificationsGet suggested actions, replies, and more",
             taps = arrayOf(
                 Position(540f, 1350f)
-            )
+            ),
+            dimensions = Position(1080f, 2340f)
         ),
         Action(
             actType = Action.ActionType.Tap,
@@ -232,7 +237,100 @@ private val flashNotifications = Sequence(
             resultingScreenOcr = "Flash notificationsFlash the screen when you receive notifications or when alarms soundScreen flashYellowPreviewUse flash notifications with caution if you're light sensitive",
             taps = arrayOf(
                 Position(969f, 1520f)
-            )
+            ),
+            dimensions = Position(1080f, 2340f)
+        )
+    )
+)
+
+private val lockScreenSettings = Sequence(
+    id = System.currentTimeMillis() / 1000,
+    creationTime = System.currentTimeMillis() / 1000,
+    name = "Lock screen settings",
+    status = "SUCCESS",
+    dimensions = Position(1080f, 2340f),
+    result = arrayOf(
+        Action(
+            actType = Action.ActionType.Tap,
+            actionHint = "Settings",
+            firstFrame = 5,
+            resultingScreenOcr = "Settings",
+            taps = arrayOf(
+                Position(1000f, 2203f)
+            ),
+            dimensions = Position(1080f, 2340f)
+        ),
+        Action(
+            actType = Action.ActionType.Tap,
+            actionHint = "Lock screen",
+            firstFrame = 34,
+            resultingScreenOcr = "LockscreenWhattoshowPrivacyShowsensitivecontentonlywhenunlockedAddtextonlockscreenNoneShowwalletAllowaccesstowalletfromlockscreenShowdevicecontrolsShowcontrolsforexternaldevicesfromthelockscreenControlfromlockeddeviceControlexternaldeviceswithoutunlockingyourphoneortabletifallowedbythedevicecontrolsappDoublelineclockShowdoublelineclockwhenavailableWhentoshowAlwaysshowtimeandinfoIncreasedbatteryusage",
+            taps = arrayOf(
+                Position(540f, 1236f)
+            ),
+            dimensions = Position(1080f, 2340f)
+        ),
+        Action(
+            actType = Action.ActionType.Tap,
+            actionHint = "Double",
+            firstFrame = 106,
+            resultingScreenOcr = "LockscreenWhattoshowPrivacyShowsensitivecontentonlywhenunlockedAddtextonlockscreenNoneShowwalletAllowaccesstowalletfromlockscreenShowdevicecontrolsShowcontrolsforexternaldevicesfromthelockscreenControlfromlockeddeviceControlexternaldeviceswithoutunlockingyourphoneortabletifallowedbythedevicecontrolsappDoublelineclockShowdoublelineclockwhenavailableWhentoshowAlwaysshowtimeandinfoIncreasedbatteryusage",
+            taps = arrayOf(
+                Position(163f, 1912f)
+            ),
+            dimensions = Position(1080f, 2340f)
+        ),
+        Action(
+            actType = Action.ActionType.Tap,
+            actionHint = "Control",
+            firstFrame = 110,
+            resultingScreenOcr = "LockscreenWhattoshowPrivacyShowsensitivecontentonlywhenunlockedAddtextonlockscreenNoneShowwalletAllowaccesstowalletfromlockscreenShowdevicecontrolsShowcontrolsforexternaldevicesfromthelockscreenControlfromlockeddeviceControlexternaldeviceswithoutunlockingyourphoneortabletifallowedbythedevicecontrolsappDoublelineclockShowdoublelineclockwhenavailableWhentoshowAlwaysshowtimeandinfoIncreasedbatteryusageTaptocheckphoneOnLifttocheckphoneOnA",
+            taps = arrayOf(
+                Position(163f, 1912f)
+            ),
+            dimensions = Position(1080f, 2340f)
+        ),
+        Action(
+            actType = Action.ActionType.Tap,
+            actionHint = "Control",
+            firstFrame = 115,
+            resultingScreenOcr = "TaptocheckphoneTaptocheckphoneTochecktimenotificationsandotherinfotapyourscreen",
+            taps = arrayOf(
+                Position(156f, 1140f),
+                Position(150f, 1071f),
+                Position(143f, 1001f),
+                Position(137f, 918f),
+                Position(130f, 840f),
+                Position(124f, 783f),
+                Position(112f, 732f),
+                Position(109f, 711f),
+                Position(114f, 703f),
+                Position(116f, 701f),
+                Position(120f, 703f),
+                Position(119f, 705f),
+                Position(120f, 709f)
+            ),
+            dimensions = Position(1080f, 2340f)
+        ),
+        Action(
+            actType = Action.ActionType.Tap,
+            actionHint = "notifications",
+            firstFrame = 176,
+            resultingScreenOcr = "TaptocheckphoneTaptocheckphoneTochecktimenotificationsandotherinfotapyourscreen",
+            taps = arrayOf(
+                Position(443f, 737f)
+            ),
+            dimensions = Position(1080f, 2340f)
+        ),
+        Action(
+            actType = Action.ActionType.Tap,
+            actionHint = "and",
+            firstFrame = 198,
+            resultingScreenOcr = "AFlashnotificationsFlashthescreenwhenyoureceivenotificationsorwhenalarmssoundScreenflashYellowPreviewUseflashnotificationswithcautionifyourelightsensitive",
+            taps = arrayOf(
+                Position(540f, 1236f)
+            ),
+            dimensions = Position(1080f, 2340f)
         )
     )
 )
@@ -242,6 +340,7 @@ private val setTimer = Sequence(
     creationTime = System.currentTimeMillis() / 1000,
     name = "Set 5-minute timer",
     status = "SUCCESS",
+    dimensions = Position(1080f, 2340f),
     result = arrayOf(
         Action(
             actType = Action.ActionType.Tap,
@@ -250,7 +349,8 @@ private val setTimer = Sequence(
             resultingScreenOcr = "TimerAlarmhmsClockTimerStopwatchBedtime",
             taps = arrayOf(
                 Position(565f, 2203f)
-            )
+            ),
+            dimensions = Position(1080f, 2340f)
         ),
         Action(
             actType = Action.ActionType.Tap,
@@ -259,7 +359,8 @@ private val setTimer = Sequence(
             resultingScreenOcr = "TimerAlarmhmsClockLOTimerStopwatchBedtime",
             taps = arrayOf(
                 Position(558f, 1097f)
-            )
+            ),
+            dimensions = Position(1080f, 2340f)
         ),
         Action(
             actType = Action.ActionType.Tap,
@@ -268,7 +369,8 @@ private val setTimer = Sequence(
             resultingScreenOcr = "TimerAlarmhmsClockTimerStopwatchBedtime",
             taps = arrayOf(
                 Position(557f, 1663f)
-            )
+            ),
+            dimensions = Position(1080f, 2340f)
         ),
         Action(
             actType = Action.ActionType.Tap,
@@ -277,7 +379,8 @@ private val setTimer = Sequence(
             resultingScreenOcr = "TimermsTimerAlarmClockTimerStopwatchBedtime",
             taps = arrayOf(
                 Position(268f, 851f)
-            )
+            ),
+            dimensions = Position(1080f, 2340f)
         ),
         Action(
             actType = Action.ActionType.Tap,
@@ -286,7 +389,8 @@ private val setTimer = Sequence(
             resultingScreenOcr = "TimerAlarmhmsClockTimerStopwatchBedtime",
             taps = arrayOf(
                 Position(539f, 1970f)
-            )
+            ),
+            dimensions = Position(1080f, 2340f)
         )
     )
 )

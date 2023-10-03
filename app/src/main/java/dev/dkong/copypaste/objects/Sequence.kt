@@ -1,6 +1,7 @@
 package dev.dkong.copypaste.objects
 
 import android.accessibilityservice.AccessibilityService.GestureResultCallback
+import android.content.res.Resources
 import dev.dkong.copypaste.accessibility.ReplayAccessibilityService
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -10,14 +11,19 @@ sealed class ExecutableAction(val service: ReplayAccessibilityService, val actio
         callback: GestureResultCallback? = null
     )
 
-    class SwipeAction(service: ReplayAccessibilityService, action: Action) :
+    class SwipeAction(service: ReplayAccessibilityService, action: Action, val dimensions: Position) :
         ExecutableAction(service, action) {
         override fun execute(
             callback: GestureResultCallback?
         ) {
+            // Calculate the scaling of the original action with the device's resolution
+            val xScale = if (action.dimensions != null) dimensions.x / dimensions.x else 1f
+            val yScale = if (action.dimensions != null) dimensions.y / dimensions.y else 1f
+
+            // Scale the tap coordinates as needed
             service.swipe(
-                action.taps.first(),
-                action.taps.last(),
+                Position(action.taps.first().x * xScale, action.taps.first().y * yScale),
+                Position(action.taps.last().x * xScale, action.taps.last().y * yScale),
                 callback
             )
         }
@@ -64,14 +70,17 @@ data class Action(
     val firstFrame: Int,
     @SerialName("resulting_screen_ocr")
     val resultingScreenOcr: String,
+    var dimensions: Position? = null,
     val taps: Array<Position>
 ) {
     @Serializable
     enum class ActionType {
         @SerialName("SWIPE")
         Swipe,
+
         @SerialName("CLICK")
         Tap,
+
         @SerialName("LONG_CLICK")
         LongTap
     }
@@ -80,8 +89,12 @@ data class Action(
      * Get an executable action for this parsed action
      */
     fun toExecutableAction(service: ReplayAccessibilityService): ExecutableAction? {
+        val dimensions = Position(
+            Resources.getSystem().displayMetrics.widthPixels.toFloat(),
+            Resources.getSystem().displayMetrics.heightPixels.toFloat()
+        )
         return when (actType) {
-            ActionType.Swipe -> ExecutableAction.SwipeAction(service, this)
+            ActionType.Swipe -> ExecutableAction.SwipeAction(service, this, dimensions = dimensions)
             ActionType.Tap -> ExecutableAction.TapAction(service, this)
             ActionType.LongTap -> ExecutableAction.LongTapAction(service, this)
             else -> null

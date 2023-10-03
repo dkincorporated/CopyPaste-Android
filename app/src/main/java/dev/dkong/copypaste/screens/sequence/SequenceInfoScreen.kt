@@ -2,6 +2,7 @@
 
 package dev.dkong.copypaste.screens.sequence
 
+import android.content.res.Resources
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -36,6 +37,7 @@ import androidx.navigation.NavHostController
 import dev.dkong.copypaste.R
 import dev.dkong.copypaste.composables.LargeTopAppbarScaffold
 import dev.dkong.copypaste.composables.SectionHeading
+import dev.dkong.copypaste.objects.Position
 import dev.dkong.copypaste.objects.Sequence
 import dev.dkong.copypaste.utils.ActionManager
 import dev.dkong.copypaste.utils.ExecutionManager
@@ -120,6 +122,20 @@ fun SequenceInfoScreen(
                     val displayTime =
                         DateTimeFormatter.ISO_INSTANT.format(Instant.ofEpochSecond(time))
                     Text(text = "Created: $displayTime")
+                }
+            }
+            item {
+                Text(text = "Original resolution: ${s.dimensions?.x} × ${s.dimensions?.y}")
+            }
+            item {
+                val screenDimensions = Position(
+                    Resources.getSystem().displayMetrics.widthPixels.toFloat(),
+                    Resources.getSystem().displayMetrics.heightPixels.toFloat()
+                )
+                s.dimensions?.let { d ->
+                    val xScale = screenDimensions.x / d.x
+                    val yScale = screenDimensions.y / d.y
+                    Text(text = "Scaling: ${xScale}x, ${yScale}y")
                 }
             }
             item {
