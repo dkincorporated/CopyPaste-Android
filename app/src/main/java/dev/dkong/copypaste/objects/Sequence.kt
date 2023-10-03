@@ -11,19 +11,28 @@ sealed class ExecutableAction(val service: ReplayAccessibilityService, val actio
         callback: GestureResultCallback? = null
     )
 
-    class SwipeAction(service: ReplayAccessibilityService, action: Action, val dimensions: Position) :
+    class SwipeAction(service: ReplayAccessibilityService, private val sequence: Sequence, action: Action, val dimensions: Position) :
         ExecutableAction(service, action) {
         override fun execute(
             callback: GestureResultCallback?
         ) {
-            // Calculate the scaling of the original action with the device's resolution
-            val xScale = if (action.dimensions != null) dimensions.x / dimensions.x else 1f
-            val yScale = if (action.dimensions != null) dimensions.y / dimensions.y else 1f
+            sequence.dimensions?.let { d ->
+                // Calculate the scaling of the original action with the device's resolution
+                val xScale = d.x / dimensions.x
+                val yScale = d.y / dimensions.y
 
-            // Scale the tap coordinates as needed
+                // Scale the tap coordinates as needed
+                service.swipe(
+                    Position(action.taps.first().x * xScale, action.taps.first().y * yScale),
+                    Position(action.taps.last().x * xScale, action.taps.last().y * yScale),
+                    callback
+                )
+                return
+            }
+            // Sequence dimensions not available; use the original coordinates
             service.swipe(
-                Position(action.taps.first().x * xScale, action.taps.first().y * yScale),
-                Position(action.taps.last().x * xScale, action.taps.last().y * yScale),
+                action.taps.first(),
+                action.taps.last(),
                 callback
             )
         }
@@ -70,7 +79,6 @@ data class Action(
     val firstFrame: Int,
     @SerialName("resulting_screen_ocr")
     val resultingScreenOcr: String,
-    var dimensions: Position? = null,
     val taps: Array<Position>
 ) {
     @Serializable
@@ -88,13 +96,13 @@ data class Action(
     /**
      * Get an executable action for this parsed action
      */
-    fun toExecutableAction(service: ReplayAccessibilityService): ExecutableAction? {
+    fun toExecutableAction(service: ReplayAccessibilityService, sequence: Sequence): ExecutableAction? {
         val dimensions = Position(
             Resources.getSystem().displayMetrics.widthPixels.toFloat(),
             Resources.getSystem().displayMetrics.heightPixels.toFloat()
         )
         return when (actType) {
-            ActionType.Swipe -> ExecutableAction.SwipeAction(service, this, dimensions = dimensions)
+            ActionType.Swipe -> ExecutableAction.SwipeAction(service,  sequence,this, dimensions = dimensions)
             ActionType.Tap -> ExecutableAction.TapAction(service, this)
             ActionType.LongTap -> ExecutableAction.LongTapAction(service, this)
             else -> null

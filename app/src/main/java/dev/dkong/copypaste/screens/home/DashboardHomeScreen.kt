@@ -200,8 +200,7 @@ private val flashNotifications = Sequence(
             taps = arrayOf(
                 Position(540f, 1800f),
                 Position(540f, 1400f)
-            ),
-            dimensions = Position(1080f, 2340f)
+            )
         ),
         Action(
             actType = Action.ActionType.Tap,
@@ -209,8 +208,7 @@ private val flashNotifications = Sequence(
             resultingScreenOcr = "SettingsSearch settingsNetwork & internetMobile, Wi‑Fi, hotspotConnected devicesBluetooth, pairingAppsAssistant, recent apps, default appsNotificationsNotification history, conversationsBattery100%Storage48% used - 4.20 GB freeSound & vibrationVolume, haptics, Do Not DisturbDisplayDark theme, font size, brightnessWallpaper & styleColors, themed icons, app gridAccessibilityDisplay, interaction, audioSecurity & privacyApp security, device lock, permissionsLocationOn - 4 apps have access to locationSafety & emergencyEmergency SOS, medical info, alerts",
             taps = arrayOf(
                 Position(540f, 950f)
-            ),
-            dimensions = Position(1080f, 2340f)
+            )
         ),
         Action(
             actType = Action.ActionType.Swipe,
@@ -219,8 +217,7 @@ private val flashNotifications = Sequence(
             taps = arrayOf(
                 Position(540f, 2100f),
                 Position(540f, 500f),
-            ),
-            dimensions = Position(1080f, 2340f)
+            )
         ),
         Action(
             actType = Action.ActionType.Tap,
@@ -228,8 +225,7 @@ private val flashNotifications = Sequence(
             resultingScreenOcr = "NotificationsBubblesOn / Conversations can appear as floating iconsPrivacyDevice & app notificationsControl which apps and devices can read notificationsNotifications on lock screenHide silent conversations and notificationsGeneralDo Not DisturbOffFlash notificationsOn / Screen flashWireless emergency alertsHide silent notifications in status barAllow notification snoozingNotification dot on app iconEnhanced notificationsGet suggested actions, replies, and more",
             taps = arrayOf(
                 Position(540f, 1350f)
-            ),
-            dimensions = Position(1080f, 2340f)
+            )
         ),
         Action(
             actType = Action.ActionType.Tap,
@@ -237,8 +233,7 @@ private val flashNotifications = Sequence(
             resultingScreenOcr = "Flash notificationsFlash the screen when you receive notifications or when alarms soundScreen flashYellowPreviewUse flash notifications with caution if you're light sensitive",
             taps = arrayOf(
                 Position(969f, 1520f)
-            ),
-            dimensions = Position(1080f, 2340f)
+            )
         )
     )
 )
@@ -257,8 +252,7 @@ private val lockScreenSettings = Sequence(
             resultingScreenOcr = "Settings",
             taps = arrayOf(
                 Position(1000f, 2203f)
-            ),
-            dimensions = Position(1080f, 2340f)
+            )
         ),
         Action(
             actType = Action.ActionType.Tap,
@@ -267,8 +261,7 @@ private val lockScreenSettings = Sequence(
             resultingScreenOcr = "LockscreenWhattoshowPrivacyShowsensitivecontentonlywhenunlockedAddtextonlockscreenNoneShowwalletAllowaccesstowalletfromlockscreenShowdevicecontrolsShowcontrolsforexternaldevicesfromthelockscreenControlfromlockeddeviceControlexternaldeviceswithoutunlockingyourphoneortabletifallowedbythedevicecontrolsappDoublelineclockShowdoublelineclockwhenavailableWhentoshowAlwaysshowtimeandinfoIncreasedbatteryusage",
             taps = arrayOf(
                 Position(540f, 1236f)
-            ),
-            dimensions = Position(1080f, 2340f)
+            )
         ),
         Action(
             actType = Action.ActionType.Tap,
@@ -277,8 +270,7 @@ private val lockScreenSettings = Sequence(
             resultingScreenOcr = "LockscreenWhattoshowPrivacyShowsensitivecontentonlywhenunlockedAddtextonlockscreenNoneShowwalletAllowaccesstowalletfromlockscreenShowdevicecontrolsShowcontrolsforexternaldevicesfromthelockscreenControlfromlockeddeviceControlexternaldeviceswithoutunlockingyourphoneortabletifallowedbythedevicecontrolsappDoublelineclockShowdoublelineclockwhenavailableWhentoshowAlwaysshowtimeandinfoIncreasedbatteryusage",
             taps = arrayOf(
                 Position(163f, 1912f)
-            ),
-            dimensions = Position(1080f, 2340f)
+            )
         ),
         Action(
             actType = Action.ActionType.Tap,
@@ -287,8 +279,7 @@ private val lockScreenSettings = Sequence(
             resultingScreenOcr = "LockscreenWhattoshowPrivacyShowsensitivecontentonlywhenunlockedAddtextonlockscreenNoneShowwalletAllowaccesstowalletfromlockscreenShowdevicecontrolsShowcontrolsforexternaldevicesfromthelockscreenControlfromlockeddeviceControlexternaldeviceswithoutunlockingyourphoneortabletifallowedbythedevicecontrolsappDoublelineclockShowdoublelineclockwhenavailableWhentoshowAlwaysshowtimeandinfoIncreasedbatteryusageTaptocheckphoneOnLifttocheckphoneOnA",
             taps = arrayOf(
                 Position(163f, 1912f)
-            ),
-            dimensions = Position(1080f, 2340f)
+            )
         ),
         Action(
             actType = Action.ActionType.Tap,
@@ -309,8 +300,7 @@ private val lockScreenSettings = Sequence(
                 Position(120f, 703f),
                 Position(119f, 705f),
                 Position(120f, 709f)
-            ),
-            dimensions = Position(1080f, 2340f)
+            )
         ),
         Action(
             actType = Action.ActionType.Tap,
@@ -319,8 +309,7 @@ private val lockScreenSettings = Sequence(
             resultingScreenOcr = "TaptocheckphoneTaptocheckphoneTochecktimenotificationsandotherinfotapyourscreen",
             taps = arrayOf(
                 Position(443f, 737f)
-            ),
-            dimensions = Position(1080f, 2340f)
+            )
         ),
         Action(
             actType = Action.ActionType.Tap,
@@ -329,8 +318,7 @@ private val lockScreenSettings = Sequence(
             resultingScreenOcr = "AFlashnotificationsFlashthescreenwhenyoureceivenotificationsorwhenalarmssoundScreenflashYellowPreviewUseflashnotificationswithcautionifyourelightsensitive",
             taps = arrayOf(
                 Position(540f, 1236f)
-            ),
-            dimensions = Position(1080f, 2340f)
+            )
         )
     )
 )
@@ -349,8 +337,7 @@ private val setTimer = Sequence(
             resultingScreenOcr = "TimerAlarmhmsClockTimerStopwatchBedtime",
             taps = arrayOf(
                 Position(565f, 2203f)
-            ),
-            dimensions = Position(1080f, 2340f)
+            )
         ),
         Action(
             actType = Action.ActionType.Tap,
@@ -359,8 +346,7 @@ private val setTimer = Sequence(
             resultingScreenOcr = "TimerAlarmhmsClockLOTimerStopwatchBedtime",
             taps = arrayOf(
                 Position(558f, 1097f)
-            ),
-            dimensions = Position(1080f, 2340f)
+            )
         ),
         Action(
             actType = Action.ActionType.Tap,
@@ -369,8 +355,7 @@ private val setTimer = Sequence(
             resultingScreenOcr = "TimerAlarmhmsClockTimerStopwatchBedtime",
             taps = arrayOf(
                 Position(557f, 1663f)
-            ),
-            dimensions = Position(1080f, 2340f)
+            )
         ),
         Action(
             actType = Action.ActionType.Tap,
@@ -379,8 +364,7 @@ private val setTimer = Sequence(
             resultingScreenOcr = "TimermsTimerAlarmClockTimerStopwatchBedtime",
             taps = arrayOf(
                 Position(268f, 851f)
-            ),
-            dimensions = Position(1080f, 2340f)
+            )
         ),
         Action(
             actType = Action.ActionType.Tap,
@@ -389,8 +373,7 @@ private val setTimer = Sequence(
             resultingScreenOcr = "TimerAlarmhmsClockTimerStopwatchBedtime",
             taps = arrayOf(
                 Position(539f, 1970f)
-            ),
-            dimensions = Position(1080f, 2340f)
+            )
         )
     )
 )

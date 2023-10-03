@@ -435,7 +435,6 @@ fun UploadScreen(navHostController: NavHostController) {
                                 seq.id = System.currentTimeMillis() / 1000
                                 seq.dimensions =
                                     Position(videoWidth.toFloat(), videoHeight.toFloat())
-                                seq.result?.forEach { r -> r.dimensions = seq.dimensions }
                                 scope.launch {
                                     ActionManager.addSequence(context, seq)
                                     Log.d("SAVE", "Saved action $actionName!")

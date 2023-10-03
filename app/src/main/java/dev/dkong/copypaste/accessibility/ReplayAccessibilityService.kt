@@ -99,11 +99,13 @@ class ReplayAccessibilityService : AccessibilityService() {
             ExecutionManager.interventionChangeListeners.add { newIntervention ->
                 actionIntervention = newIntervention
             }
+            var sequence by remember { mutableStateOf(ExecutionManager.currentSequence) }
             val sequenceActions = remember { mutableStateListOf<Action>() }
             if (sequenceActions.size == 0) {
                 sequenceActions.addAll(ExecutionManager.currentSequence?.result?.toList() ?: listOf())
             }
             ExecutionManager.sequenceChangeListeners.add { newSequence ->
+                sequence = newSequence
                 newSequence?.result?.let { r ->
                     sequenceActions.clear()
                     sequenceActions.addAll(r)
@@ -207,7 +209,8 @@ class ReplayAccessibilityService : AccessibilityService() {
                                     }
                                     // Execute the action
                                     actionInProgress = true
-                                    executingAction.toExecutableAction(this@ReplayAccessibilityService)
+
+                                    executingAction.toExecutableAction(this@ReplayAccessibilityService, sequence!!)
                                         ?.execute(
                                             object : GestureResultCallback() {
                                                 override fun onCompleted(gestureDescription: GestureDescription?) {
