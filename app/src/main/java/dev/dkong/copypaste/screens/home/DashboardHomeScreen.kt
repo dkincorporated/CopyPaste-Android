@@ -173,57 +173,8 @@ fun DashboardHomeScreen(
                     scope.launch {
                         ActionManager.addSequence(
                             context,
-                            Sequence(
-                                id = System.currentTimeMillis() / 1000,
-                                creationTime = System.currentTimeMillis() / 1000,
-                                name = "Toggle flash notifications",
-                                status = "SUCCESS",
-                                result = arrayOf(
-                                    Action(
-                                        actType = Action.ActionType.Swipe,
-                                        firstFrame = -1,
-                                        resultingScreenOcr = "SettingsSearch settingsNetwork & internetMobile, Wi‑Fi, hotspotConnected devicesBluetooth, pairingAppsAssistant, recent apps, default appsNotificationsNotification history, conversationsBattery100%Storage48% used - 4.20 GB freeSound & vibrationVolume, haptics, Do Not DisturbDisplayDark theme, font size, brightnessWallpaper & styleColors, themed icons, app gridAccessibilityDisplay, interaction, audioSecurity & privacyApp security, device lock, permissionsLocationOn - 4 apps have access to locationSafety & emergencyEmergency SOS, medical info, alerts",
-                                        taps = arrayOf(
-                                            Position(540f, 1800f),
-                                            Position(540f, 1400f)
-                                        )
-                                    ),
-                                    Action(
-                                        actType = Action.ActionType.Tap,
-                                        firstFrame = -1,
-                                        resultingScreenOcr = "SettingsSearch settingsNetwork & internetMobile, Wi‑Fi, hotspotConnected devicesBluetooth, pairingAppsAssistant, recent apps, default appsNotificationsNotification history, conversationsBattery100%Storage48% used - 4.20 GB freeSound & vibrationVolume, haptics, Do Not DisturbDisplayDark theme, font size, brightnessWallpaper & styleColors, themed icons, app gridAccessibilityDisplay, interaction, audioSecurity & privacyApp security, device lock, permissionsLocationOn - 4 apps have access to locationSafety & emergencyEmergency SOS, medical info, alerts",
-                                        taps = arrayOf(
-                                            Position(540f, 950f)
-                                        )
-                                    ),
-                                    Action(
-                                        actType = Action.ActionType.Swipe,
-                                        firstFrame = -1,
-                                        resultingScreenOcr = "NotificationsNotification historyShow recent and snoozed notificationsConversationConversationsNo priority conversationsBubblesOn / Conversations can appear as floating iconsPrivacyDevice & app notificationsControl which apps and devices can read notificationsNotifications on lock screenHide silent conversations and notificationsGeneralDo Not DisturbOffFlash notificationsOn / Screen flashWireless emergency alertsHide silent notifications in status barAllow notification snoozing",
-                                        taps = arrayOf(
-                                            Position(540f, 2100f),
-                                            Position(540f, 500f),
-                                        )
-                                    ),
-                                    Action(
-                                        actType = Action.ActionType.Tap,
-                                        firstFrame = -1,
-                                        resultingScreenOcr = "NotificationsBubblesOn / Conversations can appear as floating iconsPrivacyDevice & app notificationsControl which apps and devices can read notificationsNotifications on lock screenHide silent conversations and notificationsGeneralDo Not DisturbOffFlash notificationsOn / Screen flashWireless emergency alertsHide silent notifications in status barAllow notification snoozingNotification dot on app iconEnhanced notificationsGet suggested actions, replies, and more",
-                                        taps = arrayOf(
-                                            Position(540f, 1350f)
-                                        )
-                                    ),
-                                    Action(
-                                        actType = Action.ActionType.Tap,
-                                        firstFrame = -1,
-                                        resultingScreenOcr = "Flash notificationsFlash the screen when you receive notifications or when alarms soundScreen flashYellowPreviewUse flash notifications with caution if you're light sensitive",
-                                        taps = arrayOf(
-                                            Position(969f, 1520f)
-                                        )
-                                    )
-                                )
+                            setTimer
                             )
-                        )
                     }
                 }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
                     Text("Add test data")
@@ -232,6 +183,115 @@ fun DashboardHomeScreen(
         }
     }
 }
+
+// TEST DATA
+
+private val flashNotifications = Sequence(
+    id = System.currentTimeMillis() / 1000,
+    creationTime = System.currentTimeMillis() / 1000,
+    name = "Toggle flash notifications",
+    status = "SUCCESS",
+    result = arrayOf(
+        Action(
+            actType = Action.ActionType.Swipe,
+            firstFrame = -1,
+            resultingScreenOcr = "SettingsSearch settingsNetwork & internetMobile, Wi‑Fi, hotspotConnected devicesBluetooth, pairingAppsAssistant, recent apps, default appsNotificationsNotification history, conversationsBattery100%Storage48% used - 4.20 GB freeSound & vibrationVolume, haptics, Do Not DisturbDisplayDark theme, font size, brightnessWallpaper & styleColors, themed icons, app gridAccessibilityDisplay, interaction, audioSecurity & privacyApp security, device lock, permissionsLocationOn - 4 apps have access to locationSafety & emergencyEmergency SOS, medical info, alerts",
+            taps = arrayOf(
+                Position(540f, 1800f),
+                Position(540f, 1400f)
+            )
+        ),
+        Action(
+            actType = Action.ActionType.Tap,
+            firstFrame = -1,
+            resultingScreenOcr = "SettingsSearch settingsNetwork & internetMobile, Wi‑Fi, hotspotConnected devicesBluetooth, pairingAppsAssistant, recent apps, default appsNotificationsNotification history, conversationsBattery100%Storage48% used - 4.20 GB freeSound & vibrationVolume, haptics, Do Not DisturbDisplayDark theme, font size, brightnessWallpaper & styleColors, themed icons, app gridAccessibilityDisplay, interaction, audioSecurity & privacyApp security, device lock, permissionsLocationOn - 4 apps have access to locationSafety & emergencyEmergency SOS, medical info, alerts",
+            taps = arrayOf(
+                Position(540f, 950f)
+            )
+        ),
+        Action(
+            actType = Action.ActionType.Swipe,
+            firstFrame = -1,
+            resultingScreenOcr = "NotificationsNotification historyShow recent and snoozed notificationsConversationConversationsNo priority conversationsBubblesOn / Conversations can appear as floating iconsPrivacyDevice & app notificationsControl which apps and devices can read notificationsNotifications on lock screenHide silent conversations and notificationsGeneralDo Not DisturbOffFlash notificationsOn / Screen flashWireless emergency alertsHide silent notifications in status barAllow notification snoozing",
+            taps = arrayOf(
+                Position(540f, 2100f),
+                Position(540f, 500f),
+            )
+        ),
+        Action(
+            actType = Action.ActionType.Tap,
+            firstFrame = -1,
+            resultingScreenOcr = "NotificationsBubblesOn / Conversations can appear as floating iconsPrivacyDevice & app notificationsControl which apps and devices can read notificationsNotifications on lock screenHide silent conversations and notificationsGeneralDo Not DisturbOffFlash notificationsOn / Screen flashWireless emergency alertsHide silent notifications in status barAllow notification snoozingNotification dot on app iconEnhanced notificationsGet suggested actions, replies, and more",
+            taps = arrayOf(
+                Position(540f, 1350f)
+            )
+        ),
+        Action(
+            actType = Action.ActionType.Tap,
+            firstFrame = -1,
+            resultingScreenOcr = "Flash notificationsFlash the screen when you receive notifications or when alarms soundScreen flashYellowPreviewUse flash notifications with caution if you're light sensitive",
+            taps = arrayOf(
+                Position(969f, 1520f)
+            )
+        )
+    )
+)
+
+private val setTimer = Sequence(
+    id = System.currentTimeMillis() / 1000,
+    creationTime = System.currentTimeMillis() / 1000,
+    name = "Set 5-minute timer",
+    status = "SUCCESS",
+    result = arrayOf(
+        Action(
+            actType = Action.ActionType.Tap,
+            actionHint = "Timer",
+            firstFrame = 5,
+            resultingScreenOcr = "TimerAlarmhmsClockTimerStopwatchBedtime",
+            taps = arrayOf(
+                Position(565f, 2203f)
+            )
+        ),
+        Action(
+            actType = Action.ActionType.Tap,
+            actionHint = "5",
+            firstFrame = 34,
+            resultingScreenOcr = "TimerAlarmhmsClockLOTimerStopwatchBedtime",
+            taps = arrayOf(
+                Position(558f, 1097f)
+            )
+        ),
+        Action(
+            actType = Action.ActionType.Tap,
+            actionHint = "00",
+            firstFrame = 54,
+            resultingScreenOcr = "TimerAlarmhmsClockTimerStopwatchBedtime",
+            taps = arrayOf(
+                Position(557f, 1663f)
+            )
+        ),
+        Action(
+            actType = Action.ActionType.Tap,
+            actionHint = "2",
+            firstFrame = 80,
+            resultingScreenOcr = "TimermsTimerAlarmClockTimerStopwatchBedtime",
+            taps = arrayOf(
+                Position(268f, 851f)
+            )
+        ),
+        Action(
+            actType = Action.ActionType.Tap,
+            actionHint = "5:00",
+            firstFrame = 195,
+            resultingScreenOcr = "TimerAlarmhmsClockTimerStopwatchBedtime",
+            taps = arrayOf(
+                Position(539f, 1970f)
+            )
+        )
+    )
+)
+
+// END TEST DATA
 
 @Composable
 fun SequenceCard(sequence: Sequence, navHostController: NavHostController) {

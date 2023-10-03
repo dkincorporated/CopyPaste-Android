@@ -58,6 +58,8 @@ data class Position(
 data class Action(
     @SerialName("act_type")
     val actType: ActionType?,
+    @SerialName("action_hint")
+    val actionHint: String? = null,
     @SerialName("first_frame")
     val firstFrame: Int,
     @SerialName("resulting_screen_ocr")
@@ -68,9 +70,9 @@ data class Action(
     enum class ActionType {
         @SerialName("SWIPE")
         Swipe,
-        @SerialName("TAP")
+        @SerialName("CLICK")
         Tap,
-        @SerialName("LONG_TAP")
+        @SerialName("LONG_CLICK")
         LongTap
     }
 
@@ -120,7 +122,8 @@ data class Sequence(
     val status: String? = null,
     var name: String? = null,
     var id: Long? = null,
-    var creationTime: Long? = null
+    var creationTime: Long? = null,
+    var dimensions: Position? = null
 ) {
     override fun toString(): String {
         return "Name: $name | Actions: ${

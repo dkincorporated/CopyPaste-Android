@@ -1,6 +1,7 @@
 package dev.dkong.copypaste.screens.upload
 
 import android.content.Context
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.util.Log
 import android.webkit.MimeTypeMap
@@ -61,6 +62,7 @@ import com.github.kittinunf.fuel.core.FileDataPart
 import com.github.kittinunf.fuel.core.Method
 import dev.dkong.copypaste.composables.LargeTopAppbarScaffold
 import dev.dkong.copypaste.composables.SectionHeading
+import dev.dkong.copypaste.objects.Position
 import dev.dkong.copypaste.objects.Sequence
 import dev.dkong.copypaste.utils.ActionManager
 import java.io.File
@@ -198,12 +200,23 @@ fun UploadScreen(navHostController: NavHostController) {
         return null
     }
 
+    var videoWidth by remember { mutableStateOf(0) }
+    var videoHeight by remember { mutableStateOf(0) }
 
     val launcher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.PickVisualMedia()) { uri ->
             videoUri = uri
             uploadStatus = if (uri == null) UploadStatus.NotSelected else UploadStatus.Selected
             isFailed = false
+            val mediaRetriever = MediaMetadataRetriever()
+            mediaRetriever.setDataSource(context, uri)
+            videoWidth = mediaRetriever.extractMetadata(
+                MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH
+            )?.toInt() ?: 0
+            videoHeight = mediaRetriever.extractMetadata(
+                MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT
+            )?.toInt() ?: 0
+            mediaRetriever.release()
         }
 
     LargeTopAppbarScaffold(
@@ -420,6 +433,8 @@ fun UploadScreen(navHostController: NavHostController) {
                                 seq.name = actionName
                                 seq.creationTime = System.currentTimeMillis() / 1000
                                 seq.id = System.currentTimeMillis() / 1000
+                                seq.dimensions =
+                                    Position(videoWidth.toFloat(), videoHeight.toFloat())
                                 scope.launch {
                                     ActionManager.addSequence(context, seq)
                                     Log.d("SAVE", "Saved action $actionName!")
@@ -432,14 +447,6 @@ fun UploadScreen(navHostController: NavHostController) {
                         Text(text = "Save")
                     }
                 }
-//                if (uploadStatus == UploadStatus.Complete && actionName == "") {
-//                    Text(
-//                        text = "Please name the action before saving.",
-//                        textAlign = TextAlign.Center,
-//                        color = MaterialTheme.colorScheme.error,
-//                        modifier = Modifier.fillMaxWidth()
-//                    )
-//                }
             }
         }
     }
