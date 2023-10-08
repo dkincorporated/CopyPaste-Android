@@ -1,7 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
     android:description="@string/accessibility_description"
-    android:accessibilityEventTypes="typeAllMask"
+    android:accessibilityEventTypes="typeAllMask|typeViewClicked|typeViewFocused|typeTouchInteractionStart|typeTouchInteractionEnd|typeTouchExplorationGestureStart|typeTouchExplorationGestureEnd"
     android:accessibilityFlags="flagDefault"
     android:accessibilityFeedbackType="feedbackSpoken"
     android:notificationTimeout="100"

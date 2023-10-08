@@ -76,6 +76,9 @@ object ActionManager {
         }
     }
 
+    /**
+     * Get a sequence from the list of sequences
+     */
     suspend fun getSequence(context: Context, id: Long, callback: (Sequence?) -> Unit) {
         context.dataStore.data.map { preferences ->
             preferences[sequencesKey]
@@ -88,12 +91,27 @@ object ActionManager {
     }
 
     /**
+     * Update a sequence in the list of sequences
+     */
+    suspend fun updateSequence(context: Context, sequence: Sequence) {
+        context.dataStore.edit { preferences ->
+            val modifiedSequences = sequences.map { currentSeq ->
+                if (currentSeq.id == sequence.id) {
+                    sequence
+                } else {
+                    currentSeq
+                }
+            }
+            preferences[sequencesKey] = Json.encodeToString(modifiedSequences)
+        }
+    }
+
+    /**
      * Remove a sequence from the list of sequences
      */
     suspend fun removeSequence(context: Context, sequenceToRemove: Sequence) {
         context.dataStore.edit { preferences ->
             val modifiedSequences = sequences.filter { sequence -> sequence != sequenceToRemove }
-            Log.d("DELETING SEQ", modifiedSequences.size.toString())
             preferences[sequencesKey] = Json.encodeToString(modifiedSequences)
         }
     }

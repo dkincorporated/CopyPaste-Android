@@ -127,11 +127,14 @@ fun SequenceInfoScreen(
             item {
                 Text(text = "Original resolution: ${s.dimensions?.x} × ${s.dimensions?.y}")
             }
+            val screenDimensions = Position(
+                Resources.getSystem().displayMetrics.widthPixels.toFloat(),
+                Resources.getSystem().displayMetrics.heightPixels.toFloat()
+            )
             item {
-                val screenDimensions = Position(
-                    Resources.getSystem().displayMetrics.widthPixels.toFloat(),
-                    Resources.getSystem().displayMetrics.heightPixels.toFloat()
-                )
+                Text(text = "Current resolution: ${screenDimensions.x} × ${screenDimensions.y}")
+            }
+            item {
                 s.dimensions?.let { d ->
                     val xScale = screenDimensions.x / d.x
                     val yScale = screenDimensions.y / d.y

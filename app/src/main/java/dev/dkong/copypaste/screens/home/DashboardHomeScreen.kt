@@ -173,7 +173,7 @@ fun DashboardHomeScreen(
                     scope.launch {
                         ActionManager.addSequence(
                             context,
-                            setTimer
+                            toggleNotificationHistory
                             )
                     }
                 }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
@@ -233,6 +233,40 @@ private val flashNotifications = Sequence(
             resultingScreenOcr = "Flash notificationsFlash the screen when you receive notifications or when alarms soundScreen flashYellowPreviewUse flash notifications with caution if you're light sensitive",
             taps = arrayOf(
                 Position(969f, 1520f)
+            )
+        )
+    )
+)
+
+private val toggleNotificationHistory = Sequence(
+    id = System.currentTimeMillis() / 1000,
+    creationTime = System.currentTimeMillis() / 1000,
+    name = "Toggle notification history",
+    status = "SUCCESS",
+    dimensions = Position(1080f, 2340f),
+    result = arrayOf(
+        Action(
+            actType = Action.ActionType.Tap,
+            firstFrame = -1,
+            resultingScreenOcr = "",
+            taps = arrayOf(
+                Position(540f, 1500f)
+            )
+        ),
+        Action(
+            actType = Action.ActionType.Tap,
+            firstFrame = -1,
+            resultingScreenOcr = "",
+            taps = arrayOf(
+                Position(540f, 980f)
+            )
+        ),
+        Action(
+            actType = Action.ActionType.Tap,
+            firstFrame = -1,
+            resultingScreenOcr = "",
+            taps = arrayOf(
+                Position(540f, 680f)
             )
         )
     )

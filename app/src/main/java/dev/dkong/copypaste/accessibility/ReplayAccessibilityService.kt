@@ -1,9 +1,12 @@
 package dev.dkong.copypaste.accessibility
 
+import android.accessibilityservice.AccessibilityGestureEvent
 import android.accessibilityservice.AccessibilityService
+import android.accessibilityservice.AccessibilityServiceInfo
 import android.accessibilityservice.GestureDescription
 import android.graphics.Path
 import android.graphics.PixelFormat
+import android.os.Build
 import android.util.Log
 import android.view.Gravity
 import android.view.View
@@ -199,12 +202,12 @@ class ReplayAccessibilityService : AccessibilityService() {
 //                                                    "REPLAY",
 //                                                    "Actual string is $screenContent"
 //                                                )
-//                                                if (mismatch > distanceThreshold) {
-//                                                    // The screen is not a match; user needs to intervene
-//                                                    performGlobalAction(GLOBAL_ACTION_BACK)
-//                                                    ExecutionManager.intervention = true
-//                                                    return@collect
-//                                                }
+                                                if (mismatch > distanceThreshold) {
+                                                    // The screen is not a match; user needs to intervene
+                                                    performGlobalAction(GLOBAL_ACTION_BACK)
+                                                    ExecutionManager.intervention = true
+                                                    return@collect
+                                                }
                                             }
                                         }
                                     }
@@ -214,10 +217,11 @@ class ReplayAccessibilityService : AccessibilityService() {
                                     sequence?.let { seq ->
                                         // Determine the duration of the gesture -- used to help with swipe acceleration timing
                                         // Get the duration in frames based on the data
-                                        val frameDuration = if (actionIndex < sequenceActions.size - 1)
-                                            (seq.result?.get(actionIndex + 1)?.firstFrame?.minus(
-                                                executingAction.firstFrame
-                                            ) ?: 0L).toLong() else 0L
+                                        val frameDuration =
+                                            if (actionIndex < sequenceActions.size - 1)
+                                                (seq.result?.get(actionIndex + 1)?.firstFrame?.minus(
+                                                    executingAction.firstFrame
+                                                ) ?: 0L).toLong() else 0L
                                         // Get the duration in milliseconds based on 30 frames per second
                                         val realTimeDuration = frameDuration / 30L
                                         if (executingAction.actType == Action.ActionType.Swipe)
@@ -318,6 +322,7 @@ class ReplayAccessibilityService : AccessibilityService() {
     }
 
     override fun onServiceConnected() {
+        serviceInfo.flags = AccessibilityServiceInfo.FLAG_REQUEST_TOUCH_EXPLORATION_MODE
         // Render the UI
 
         // Partly based on
@@ -421,6 +426,15 @@ class ReplayAccessibilityService : AccessibilityService() {
 //            }
 //        }
     }
+
+//    override fun onGesture(gestureEvent: AccessibilityGestureEvent): Boolean {
+//        // Check if Android S or above
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+//            Log.d("Gesture", gestureEvent.motionEvents.toString())
+//        }
+//
+//        return super.onGesture(gestureEvent)
+//    }
 
     /**
      * Convert a node's content to a string, recursively

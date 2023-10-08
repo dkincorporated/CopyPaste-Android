@@ -2,68 +2,103 @@ package dev.dkong.copypaste.objects
 
 import android.accessibilityservice.AccessibilityService.GestureResultCallback
 import android.content.res.Resources
+import android.util.Log
 import dev.dkong.copypaste.accessibility.ReplayAccessibilityService
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-sealed class ExecutableAction(val service: ReplayAccessibilityService, val action: Action) {
+sealed class ExecutableAction(val service: ReplayAccessibilityService, val action: Action, val sequence: Sequence, val dimensions: Position) {
     abstract fun execute(
         callback: GestureResultCallback? = null
     )
 
+    fun scalePosition(position: Position): Position {
+        sequence.dimensions?.let { d ->
+            // Calculate the scaling of the original dimensions to the current dimensions
+            val xScale = dimensions.x / d.x
+            val yScale = dimensions.y / d.y
+
+            Log.d("ExecutableAction", "Scaling position by $xScale, $yScale")
+            Log.d("ExecutableAction", "From: original $position, scaled (${position.x * xScale}, ${position.y * yScale})")
+
+            return Position(position.x * xScale, position.y * yScale)
+        }
+        // Sequence dimensions not available; use the original coordinates
+        Log.d("ExecutableAction", "No scaling possible; using original position")
+        return position
+    }
+
     class SwipeAction(
         service: ReplayAccessibilityService,
-        private val sequence: Sequence,
+        sequence: Sequence,
         action: Action,
-        val dimensions: Position,
+        dimensions: Position,
         private val duration: Long = 250
     ) :
-        ExecutableAction(service, action) {
+        ExecutableAction(service, action, sequence, dimensions) {
         override fun execute(
             callback: GestureResultCallback?
         ) {
-            sequence.dimensions?.let { d ->
-                // Calculate the scaling of the original action with the device's resolution
-                val xScale = d.x / dimensions.x
-                val yScale = d.y / dimensions.y
+            val scaledFrom = scalePosition(action.taps.first())
+            val scaledTo = scalePosition(action.taps.last())
 
-                // Scale the tap coordinates as needed
-                service.swipe(
-                    Position(action.taps.first().x * xScale, action.taps.first().y * yScale),
-                    Position(action.taps.last().x * xScale, action.taps.last().y * yScale),
-                    callback,
-                    duration
-                )
-                return
-            }
-            // Sequence dimensions not available; use the original coordinates
             service.swipe(
-                action.taps.first(),
-                action.taps.last(),
-                callback
+                scaledFrom,
+                scaledTo,
+                callback,
+                duration
             )
+
+//            sequence.dimensions?.let { d ->
+//                // Calculate the scaling of the original action with the device's resolution
+//                val xScale = dimensions.x / d.x
+//                val yScale = dimensions.y / d.y
+//
+//                Log.d("SwipeAction", "Scaling swipe action by $xScale, $yScale")
+//                Log.d("SwipeAction", "From: original ${action.taps.first()}, scaled ${action.taps.first().x * xScale}, ${action.taps.first().y * yScale}")
+//                Log.d("SwipeAction", "To: original ${action.taps.last()}, scaled ${action.taps.last().x * xScale}, ${action.taps.last().y * yScale}")
+//
+//                // Scale the tap coordinates as needed
+//                service.swipe(
+//                    Position(action.taps.first().x * xScale, action.taps.first().y * yScale),
+//                    Position(action.taps.last().x * xScale, action.taps.last().y * yScale),
+//                    callback,
+//                    duration
+//                )
+//                return
+//            }
+//            // Sequence dimensions not available; use the original coordinates
+//            service.swipe(
+//                action.taps.first(),
+//                action.taps.last(),
+//                callback
+//            )
         }
     }
 
-    class TapAction(service: ReplayAccessibilityService, action: Action) :
-        ExecutableAction(service, action) {
+    class TapAction(service: ReplayAccessibilityService, action: Action, sequence: Sequence, dimensions: Position) :
+        ExecutableAction(service, action, sequence, dimensions) {
         override fun execute(
             callback: GestureResultCallback?
         ) {
+            val scaledPosition = scalePosition(action.taps.first())
+
             service.tap(
-                action.taps.first(),
+                Position(scaledPosition.x, action.taps.first().y),
                 callback
             )
         }
     }
 
-    class LongTapAction(service: ReplayAccessibilityService, action: Action) :
-        ExecutableAction(service, action) {
+    class LongTapAction(service: ReplayAccessibilityService, action: Action, sequence: Sequence, dimensions: Position) :
+        ExecutableAction(service, action, sequence, dimensions) {
         override fun execute(
             callback: GestureResultCallback?
         ) {
+            val scaledPosition = scalePosition(action.taps.first())
+
             service.longTap(
-                action.taps.first(),
+                scaledPosition,
                 callback
             )
         }
@@ -74,7 +109,11 @@ sealed class ExecutableAction(val service: ReplayAccessibilityService, val actio
 data class Position(
     val x: Float,
     val y: Float
-)
+) {
+    override fun toString(): String {
+        return "($x, $y)"
+    }
+}
 
 @Serializable
 data class Action(
@@ -121,8 +160,8 @@ data class Action(
                 duration = duration
             )
 
-            ActionType.Tap -> ExecutableAction.TapAction(service, this)
-            ActionType.LongTap -> ExecutableAction.LongTapAction(service, this)
+            ActionType.Tap -> ExecutableAction.TapAction(service, this, sequence, dimensions)
+            ActionType.LongTap -> ExecutableAction.LongTapAction(service, this, sequence, dimensions)
             else -> null
         }
     }

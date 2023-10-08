@@ -150,8 +150,9 @@ fun UploadScreen(navHostController: NavHostController) {
                 Fuel.get(statusUrl)
                     .response { _, response, _ ->
                         try {
+                            Log.d("Upload", response.data.toString(Charsets.UTF_8) + "}")
                             val parsedResponse =
-                                Json.decodeFromString<Sequence>(response.data.toString(Charsets.UTF_8))
+                                Json.decodeFromString<Sequence>(response.data.toString(Charsets.UTF_8) + "}")
                             Log.d("PROCESSING", parsedResponse.toString())
                             if (parsedResponse.state?.equals("SUCCESS") == true) {
                                 uploadStatus = UploadStatus.Complete
