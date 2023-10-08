@@ -34,6 +34,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -136,6 +137,15 @@ class ReplayAccessibilityService : AccessibilityService() {
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
+                        // Manual capture only
+                        FloatingActionButton(
+                            onClick = {
+                                Log.d("Screen text capture", nodeToText(rootInActiveWindow))
+                            },
+                            elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
+                        ) {
+                            Icon(Icons.Outlined.Info, "Capture screen")
+                        }
                         // Waiting for app to be opened
                         if (actionStep == ExecutionStep.OpenApp) {
                             FloatingActionButton(

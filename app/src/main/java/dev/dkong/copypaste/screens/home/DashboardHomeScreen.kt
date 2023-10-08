@@ -177,7 +177,7 @@ fun DashboardHomeScreen(
                             )
                     }
                 }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                    Text("Add test data")
+                    Text("Add demo data")
                 }
             }
         }
