@@ -138,14 +138,14 @@ class ReplayAccessibilityService : AccessibilityService() {
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         // Manual capture only
-                        FloatingActionButton(
-                            onClick = {
-                                Log.d("Screen text capture", nodeToText(rootInActiveWindow))
-                            },
-                            elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
-                        ) {
-                            Icon(Icons.Outlined.Info, "Capture screen")
-                        }
+//                        FloatingActionButton(
+//                            onClick = {
+//                                Log.d("Screen text capture", nodeToText(rootInActiveWindow))
+//                            },
+//                            elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
+//                        ) {
+//                            Icon(Icons.Outlined.Info, "Capture screen")
+//                        }
                         // Waiting for app to be opened
                         if (actionStep == ExecutionStep.OpenApp) {
                             FloatingActionButton(
@@ -204,14 +204,14 @@ class ReplayAccessibilityService : AccessibilityService() {
                                                     "REPLAY",
                                                     "Screen is ${(1 - mismatch) * 100}% match, distance is $editDistance"
                                                 )
-//                                                Log.d(
-//                                                    "REPLAY",
-//                                                    "Expected string is ${executingAction.resultingScreenOcr}"
-//                                                )
-//                                                Log.d(
-//                                                    "REPLAY",
-//                                                    "Actual string is $screenContent"
-//                                                )
+                                                Log.d(
+                                                    "REPLAY",
+                                                    "Expected string is ${executingAction.resultingScreenOcr}"
+                                                )
+                                                Log.d(
+                                                    "REPLAY",
+                                                    "Actual string is $screenContent"
+                                                )
                                                 if (mismatch > distanceThreshold) {
                                                     // The screen is not a match; user needs to intervene
                                                     performGlobalAction(GLOBAL_ACTION_BACK)

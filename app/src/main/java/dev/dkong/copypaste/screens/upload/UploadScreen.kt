@@ -214,10 +214,10 @@ fun UploadScreen(navHostController: NavHostController) {
             val mediaRetriever = MediaMetadataRetriever()
             mediaRetriever.setDataSource(context, uri)
             videoWidth = mediaRetriever.extractMetadata(
-                MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH
+                MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT
             )?.toInt() ?: 0
             videoHeight = mediaRetriever.extractMetadata(
-                MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT
+                MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH
             )?.toInt() ?: 0
             mediaRetriever.release()
         }
