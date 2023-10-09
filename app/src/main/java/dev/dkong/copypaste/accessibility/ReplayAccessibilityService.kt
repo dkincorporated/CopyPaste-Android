@@ -197,6 +197,21 @@ class ReplayAccessibilityService : AccessibilityService() {
                                                                 distanceLength
                                                             )
                                                     ).toFloat()
+
+                                                /**
+                                                 * The difference in screen between this and the last action
+                                                 * If there is a great difference, we had a transition, so need to go back
+                                                 * if the screen doesn't match
+                                                 */
+                                                val lastScreenEditDistance = EditDistance.editDistance(
+                                                    sequenceActions[maxOf(0, actionIndex - 1)].resultingScreenOcr,
+                                                    screenContent
+                                                ).toFloat() / minOf(sequenceActions[maxOf(0, actionIndex - 1)].resultingScreenOcr.length, screenContent.length)
+//                                                Log.d("Last screen ED raw", "${EditDistance.editDistance(
+//                                                    sequenceActions[maxOf(0, actionIndex - 1)].resultingScreenOcr,
+//                                                    screenContent
+//                                                )}")
+//                                                Log.d("Last screen ED divisor", "${minOf(sequenceActions[maxOf(0, actionIndex - 1)].resultingScreenOcr.length, screenContent.length)}")
                                                 val mismatch = editDistance / distanceLength
                                                 // The greater the edit distance, the less of a match
                                                 val distanceThreshold = 0.5f
@@ -214,7 +229,11 @@ class ReplayAccessibilityService : AccessibilityService() {
                                                 )
                                                 if (mismatch > distanceThreshold) {
                                                     // The screen is not a match; user needs to intervene
-                                                    performGlobalAction(GLOBAL_ACTION_BACK)
+                                                    Log.d("EDIT DISTANCE", "Last screen edit distance is $lastScreenEditDistance")
+                                                    if (lastScreenEditDistance > 0.3f) {
+                                                        // Go back if there was likely a screen transition
+                                                        performGlobalAction(GLOBAL_ACTION_BACK)
+                                                    }
                                                     ExecutionManager.intervention = true
                                                     return@collect
                                                 }

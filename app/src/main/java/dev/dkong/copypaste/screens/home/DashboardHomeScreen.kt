@@ -173,7 +173,7 @@ fun DashboardHomeScreen(
                     scope.launch {
                         ActionManager.addSequence(
                             context,
-                            toggleNotificationHistory
+                            flashNotifications
                             )
                     }
                 }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
